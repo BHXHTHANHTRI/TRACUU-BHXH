@@ -827,6 +827,40 @@ def extract_pdf_signatures(pdf_bytes, filename):
 def run_pdf(pdf_bytes, filename):
  return extract_pdf_signatures(pdf_bytes,filename)
 
+TAG_RE=re.compile(b"BHXHTRACUU:v1:([0-9a-f]{28})")
+def _tags_in(data):
+ return [m.group(1).decode() for m in TAG_RE.finditer(data)]
+
+def find_export_tags(pdf_bytes, filename):
+ import zlib
+ data=bytes(pdf_bytes)
+ found=_tags_in(data)
+ CRLF=bytes([13,10]); LF=bytes([10])
+ i=0
+ while True:
+  i=data.find(b"stream",i)
+  if i<0:break
+  s=i+6
+  if data[max(0,i-3):i]==b"end":
+   i=s;continue
+  if data[s:s+2]==CRLF:s+=2
+  elif data[s:s+1]==LF:s+=1
+  e=data.find(b"endstream",s)
+  if e<0:break
+  try:
+   found+=_tags_in(zlib.decompressobj().decompress(data[s:e]))
+  except Exception:
+   pass
+  i=e+9
+ try:
+  reader=PdfReader(__import__("io").BytesIO(data))
+  meta=reader.metadata or {}
+  for k in meta:
+   found+=_tags_in(str(meta[k]).encode("utf-8","ignore"))
+ except Exception:
+  pass
+ return list(dict.fromkeys(found))
+
 def dumps(x):
  return json.dumps(x,ensure_ascii=False)
 `;
@@ -1093,25 +1127,18 @@ function makeExportToken(info) {
   const s = 'BHXH-TRACUU-v1|' + [info.ten_cong_ty, info.mst, info.ma_bhxh, info.thang, info.nam].map(norm).join('|');
   return hash53(s, 1).toString(16).padStart(14, '0') + hash53(s, 2).toString(16).padStart(14, '0');
 }
-function readExportTokens(bytes) {
-  let s = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-  const re = /BHXHTRACUU:v1:([0-9a-f]{28})/g, out = [];
-  let m;
-  while ((m = re.exec(s))) out.push(m[1]);
-  return out;
-}
 // Trả về {ok:true} hoặc {ok:false, title, message}
-function verifyPdfMatchesStep1(bytes) {
+async function verifyPdfMatchesStep1(bytes, name) {
   const info = getLookupInfo();
   if (!info.ten_cong_ty || !info.mst || !info.ma_bhxh) {
     return { ok: false, title: 'Chưa có thông tin ở bước 1',
       message: 'Hãy nhập lại Tên công ty, Mã số thuế, Mã BHXH và chọn tháng/năm giống lúc xuất PDF, rồi chọn lại file đã ký.' };
   }
-  const found = readExportTokens(bytes);
+  const found = await pyCall('find_export_tags', bytes, name || '');
+  console.log('[Kiểm tra file bước 2] dấu nhận diện tìm thấy:', found);
   if (!found.length) {
     return { ok: false, title: 'Không phải file xuất từ bước 1',
-      message: 'File này không có dấu nhận diện của phiếu xuất ở bước 1. Hãy chọn đúng file "PhieuTraCuu_...pdf" đã ký số. Nếu phần mềm ký số đã ghi lại file làm mất dấu này, hãy xuất lại và ký lại.' };
+      message: 'File này không có dấu nhận diện của phiếu xuất ở bước 1. Hãy chọn đúng file "PhieuTraCuu_...pdf" đã ký số (không chọn file gốc chưa ký, không dùng file xuất từ phiên bản cũ).' };
   }
   if (found.indexOf(makeExportToken(info)) < 0) {
     return { ok: false, title: 'File không khớp thông tin ở bước 1',
@@ -1154,6 +1181,10 @@ async function exportPdfForm(){
     const imgH = canvas.height * imgW / canvas.width;
     let heightLeft = imgH, position = 0;
     pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH, undefined, 'FAST');
+    // Văn bản ẩn (chế độ hiển thị "invisible") mang dấu nhận diện: nằm trong nội dung trang
+    // nên vẫn còn khi phần mềm ký số ghi lại file và làm mất metadata.
+    pdf.setFontSize(2); pdf.setTextColor(255, 255, 255);
+    pdf.text(EXPORT_TAG + makeExportToken(info), 10, 10, { renderingMode: 'invisible' });
     heightLeft -= pageHeight;
     while (heightLeft > 0) {
       position = heightLeft - imgH;
@@ -1217,7 +1248,7 @@ async function checkIdentityViaScript() {
     showIdentityResult('warning', 'Chưa có file PDF để tải lên Drive', 'Vui lòng chọn lại file PDF đã ký số ở bước 2 trước khi lấy số liệu.');
     return;
   }
-  const chk = verifyPdfMatchesStep1(lastPdfBytes);
+  const chk = await verifyPdfMatchesStep1(lastPdfBytes, lastPdfName);
   if (!chk.ok) {
     showIdentityResult('warning', chk.title, chk.message + ' (Thông tin ở bước 1 có thể đã bị sửa sau khi chọn file.)');
     return;
@@ -1304,7 +1335,8 @@ $('pdfFile').onchange=async e=>{
  $('pdfStatus').textContent='Đang đọc PDF bằng pypdf + cryptography...';
  try{
   const b=new Uint8Array(await f.arrayBuffer());
-  const chk=verifyPdfMatchesStep1(b);
+  $('pdfStatus').style.color=''; $('pdfStatus').textContent='Đang kiểm tra file...';
+  const chk=await verifyPdfMatchesStep1(b,f.name);
   if(!chk.ok){
    lastSig=null; lastPdfBytes=null; lastPdfName='';
    $('sigList').innerHTML=''; $('qrPanel').classList.remove('show');
