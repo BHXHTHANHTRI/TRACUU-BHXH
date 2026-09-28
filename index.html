@@ -3,87 +3,220 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Đọc chữ ký số PDF</title>
+<title>BHXH - Tra cứu số liệu &amp; Tờ khai TK3-TS</title>
 <style>
+:root{--bg:#eef2f6;--surface:#fff;--ink:#152232;--muted:#5b6b7c;--line:#d9e1ea;--field:#c5d0dc;
+--brand:#0f5db0;--brand-dk:#0a4a8f;--brand-tint:#e6f0fb;--ok:#0a8a3d;--ok-dk:#076e30;--ok-tint:#e7f5ec;
+--err:#c0392b;--err-dk:#96291e;--err-tint:#fdecea;--warn:#b7791f;--warn-dk:#8f5e18;--warn-tint:#fff6de;--bar:60px}
 *{box-sizing:border-box}
-body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:#f4f6f9;color:#263238}
-.app{max-width:1200px;margin:24px auto;padding:0 16px}
-.header{background:#fff;border-radius:14px;padding:18px 22px;box-shadow:0 2px 10px #0001;margin-bottom:14px}
-h1{margin:0;font-size:22px}.sub{color:#68737d;margin-top:5px;font-size:13px}
-.panel{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 10px #0001}
-.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.file{flex:1;min-width:280px;padding:10px;border:1px solid #ccd3da;border-radius:8px;background:#fafafa}
-button{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;background:#1976d2;color:#fff;font-weight:600}
-button.secondary{background:#607d8b}
-button:disabled{opacity:.55;cursor:not-allowed}
-.status{padding:9px 11px;background:#f5f7f9;border-radius:8px;margin:8px 0;color:#455a64;font-size:13px}
-.box{border:1px solid #dce2e7;border-radius:10px;overflow:auto;max-height:520px}
-.box h3{margin:0;padding:10px 12px;background:#f3f5f7;font-size:14px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:9px 10px;border-bottom:1px solid #e7ebee;text-align:left;vertical-align:top}
-th{background:#f7f8f9;position:sticky;top:0;z-index:1}
-td:first-child{font-weight:600;color:#455a64}
-.warn{color:#ef6c00;font-weight:700}
-#loading{position:fixed;right:18px;bottom:18px;background:#263238;color:#fff;padding:10px 14px;border-radius:9px;font-size:13px;display:none;z-index:99}
+html{scroll-padding-top:calc(var(--bar) + 12px)}
+body{margin:0;font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:14px;line-height:1.5;background:var(--bg);color:var(--ink)}
+.app{max-width:1040px;margin:0 auto;padding:26px 20px 64px}
 
-/* ---- Khối kết quả đối chiếu danh tính, hiện trực tiếp trên trang (không dùng popup) ---- */
-.identity-result{border-radius:10px;padding:16px 18px;margin-top:12px;border:1px solid #999;display:none}
-.identity-result.show{display:block}
-.identity-result.success{background:#e8f5e9;border-color:#a5d6a7}
-.identity-result.error{background:#fdecea;border-color:#f1a9a0}
-.identity-result.warning{background:#fff8e1;border-color:#f0d48a}
-.identity-result .ir-head{display:flex;gap:10px;align-items:center;margin-bottom:4px}
-.identity-result .ir-icon{flex-shrink:0;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:bold;color:#fff}
-.identity-result.success .ir-icon{background:#0a8a3d}
-.identity-result.error .ir-icon{background:#c0392b}
-.identity-result.warning .ir-icon{background:#b7791f}
-.identity-result .ir-title{font-size:15px;font-weight:bold;color:#1a1a1a}
-.identity-result .ir-message{font-size:13.5px;color:#444;line-height:1.5;margin:4px 0 0 36px}
-.identity-result .kv-list{margin-top:10px;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #eee}
-.identity-result .kv-item{display:flex;flex-wrap:wrap;gap:2px 18px;padding:10px 14px;border-bottom:1px solid #eee}
-.identity-result .kv-item:last-child{border-bottom:none}
-.identity-result .kv-label{flex:0 0 260px;font-weight:600;color:#455a64;font-size:13px;line-height:1.4}
-.identity-result .kv-value{flex:1 1 160px;min-width:140px;font-size:13.5px;color:#1a1a1a;line-height:1.4}
-@media (max-width:520px){.identity-result .kv-label{flex-basis:100%}}
+/* ---- Thanh trên cùng + tab ---- */
+.topbar{position:sticky;top:0;z-index:60;height:var(--bar);background:var(--surface);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1040px;height:100%;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand-mark{flex:none;font-weight:800;font-size:15px;letter-spacing:.02em;color:#fff;background:var(--brand);border-radius:8px;padding:6px 9px;line-height:1}
+.brand-name{font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;gap:4px;padding:4px;background:var(--bg);border-radius:11px}
+.tab-btn{background:transparent;color:var(--muted);border:0;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13.5px;box-shadow:none}
+.tab-btn:hover{background:rgba(255,255,255,.65);color:var(--ink)}
+.tab-btn.active{background:var(--surface);color:var(--brand);box-shadow:0 1px 3px rgba(21,34,50,.14)}
+.tab-pane[hidden]{display:none!important}
 
-/* ---- Mẫu nhập liệu để xuất PDF ký số ---- */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-bottom:4px}
+/* ---- Nút ---- */
+button{font:inherit;border:0;border-radius:8px;padding:10px 18px;cursor:pointer;background:var(--brand);color:#fff;font-weight:600;transition:background .15s,box-shadow .15s}
+button:hover:not(:disabled){background:var(--brand-dk)}
+button.secondary{background:var(--surface);color:var(--brand);box-shadow:inset 0 0 0 1px #b4c5da}
+button.secondary:hover:not(:disabled){background:var(--brand-tint)}
+button:disabled{opacity:.5;cursor:not-allowed}
+:is(button,input,select,textarea,summary):focus-visible{outline:3px solid #8db8ea;outline-offset:2px}
+
+/* ---- Tiêu đề trang ---- */
+.page-head{margin:2px 0 26px}
+h1{margin:0;font-size:26px;line-height:1.25;letter-spacing:-.01em;font-weight:700}
+.sub{color:var(--muted);margin-top:6px;max-width:64ch}
+
+/* ---- Các bước (có thứ tự thật nên đánh số) ---- */
+.steps{display:flex;flex-direction:column}
+.step{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);gap:0 16px;padding-bottom:18px}
+.step::before{content:"";position:absolute;left:16px;top:40px;bottom:6px;width:2px;background:var(--line);border-radius:2px}
+.step:last-child::before,.step:has(+ #qrPanel:not(.show))::before{display:none}
+.step-num{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 5px var(--bg)}
+.step-body{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+.step-title{margin:5px 0 16px;font-size:16px;line-height:1.3;font-weight:700}
+
+/* ---- Form ---- */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
 .form-grid .full{grid-column:1 / -1}
-.form-field label{display:block;font-size:12.5px;color:#455a64;font-weight:600;margin-bottom:4px}
-.form-field input[type=text],.form-field select{width:100%;padding:9px 10px;border:1px solid #ccd3da;border-radius:8px;background:#fafafa;font-size:14px;font-family:inherit}
-.month-year{display:flex;gap:10px}
-.month-year select{flex:1}
-.step-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#1976d2;color:#fff;font-size:11px;font-weight:700;margin-right:6px}
-.steps-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
-@media (max-width:860px){.steps-row{grid-template-columns:1fr}}
+.form-field label{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:5px}
+.form-field input[type=text],.form-field select,.file{width:100%;padding:10px 12px;border:1px solid var(--field);border-radius:8px;background:var(--surface);font:inherit;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.form-field input[type=text]:hover,.form-field select:hover{border-color:#9fb1c6}
+.form-field input[type=text]:focus,.form-field select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px #cfe1f6}
+.form-field input::placeholder{color:#93a1b1}
+.month-year{display:flex;gap:10px}.month-year select{flex:1}
+.file{flex:1;min-width:240px;background:#f7f9fc;padding:8px 10px}
+.file::file-selector-button{font:inherit;font-weight:600;margin-right:10px;border:0;border-radius:6px;padding:6px 12px;background:var(--brand-tint);color:var(--brand);cursor:pointer}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.step-body>.toolbar:first-of-type{margin-top:0}
+.status{padding:10px 13px;background:#f3f6f9;border-radius:8px;margin-top:14px;color:#455a64;font-size:13px}
+.status.note{background:var(--warn-tint);color:#7a5b00;margin-top:0}
+.box{margin-top:14px;border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:520px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 12px;border-bottom:1px solid #e7ecf1;text-align:left;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{background:#f3f6f9;position:sticky;top:0;z-index:1;font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+td:first-child{font-weight:600;color:#455a64}
+.warn{color:#c25e00;font-weight:700}
+#loading{position:fixed;right:20px;bottom:20px;background:var(--ink);color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;display:none;z-index:99;box-shadow:0 6px 20px rgba(21,34,50,.3)}
 
-/* ---- Khối tạo mã QR chuyển khoản ---- */
-#qrPanel{display:none;margin-top:14px}
-#qrPanel.show{display:block}
-.qr-body{display:grid;grid-template-columns:220px 1fr;gap:18px;align-items:start}
-@media (max-width:640px){.qr-body{grid-template-columns:1fr}}
-.qr-imgbox{background:#fff;border:1px solid #dce2e7;border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center;min-height:220px}
+/* ---- Kết quả đối chiếu ---- */
+.identity-result{display:none;border-radius:12px;padding:16px 18px;margin-top:16px;border:1px solid var(--line);background:#f3f6f9}
+.identity-result.show{display:block}
+.identity-result.success{background:var(--ok-tint);border-color:#a5d6b7}
+.identity-result.error{background:var(--err-tint);border-color:#f1b1a9}
+.identity-result.warning{background:var(--warn-tint);border-color:#ecd28e}
+.identity-result.info{background:var(--brand-tint);border-color:#b4cfee}
+.ir-head{display:flex;gap:10px;align-items:center}
+.ir-icon{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:var(--brand)}
+.identity-result.success .ir-icon{background:var(--ok)}
+.identity-result.error .ir-icon{background:var(--err)}
+.identity-result.warning .ir-icon{background:var(--warn)}
+.ir-title{font-size:15px;font-weight:700}
+.ir-message{font-size:13.5px;color:#3b4b5c;line-height:1.55;margin:4px 0 0 36px}
+.identity-result .kv-list{margin-top:12px;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.identity-result .kv-item{display:flex;flex-wrap:wrap;gap:2px 18px;padding:10px 14px;border-bottom:1px solid #edf1f5}
+.identity-result .kv-item:last-child{border-bottom:0}
+.identity-result .kv-label{flex:0 0 240px;font-weight:600;color:var(--muted);font-size:13px}
+.identity-result .kv-value{flex:1 1 160px;min-width:140px;font-size:13.5px;color:var(--ink)}
+
+/* ---- Mã QR ---- */
+#qrPanel{display:none}#qrPanel.show{display:grid}
+.qr-body{display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;align-items:start;margin-top:14px}
+.qr-imgbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:240px}
 .qr-imgbox img{max-width:100%;border-radius:4px}
-.qr-imgbox .qr-placeholder{color:#90a4ae;font-size:12.5px;text-align:center;padding:20px 8px}
-.qr-info .kv-item{display:flex;flex-wrap:wrap;gap:2px 14px;padding:8px 0;border-bottom:1px solid #eee}
-.qr-info .kv-item:last-child{border-bottom:none}
-.qr-info .kv-label{flex:0 0 180px;font-weight:600;color:#455a64;font-size:13px}
-.qr-info .kv-value{flex:1 1 160px;font-size:13.5px;color:#1a1a1a;word-break:break-word}
-.qr-info .kv-value.mono{font-family:Consolas,Menlo,monospace}
-@media (max-width:520px){.qr-info .kv-label{flex-basis:100%}}
+.qr-placeholder{color:#7d8c9b;font-size:12.5px;text-align:center;padding:20px 8px}
+.qr-info .kv-item{display:flex;flex-wrap:wrap;gap:2px 14px;padding:10px 0;border-bottom:1px solid #e7ecf1}
+.qr-info .kv-item:first-child{padding-top:0}.qr-info .kv-item:last-child{border-bottom:0}
+.qr-info .kv-label{flex:0 0 170px;font-weight:600;color:var(--muted);font-size:13px}
+.qr-info .kv-value{flex:1 1 160px;font-size:14px;word-break:break-word}
+.qr-info .kv-value.mono{font-family:Consolas,Menlo,monospace;font-size:13.5px}
+
+/* ================= TỜ KHAI TK3-TS ================= */
+#tk3Pane{background:#dde4ec;border-radius:14px;padding:18px 14px 44px;font-family:Arial,Helvetica,sans-serif}
+.tk3-scope .guide{max-width:210mm;margin:0 auto 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.tk3-scope .guide-title{cursor:pointer;padding:12px 16px;font-weight:700;font-size:14px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.tk3-scope .guide-title::-webkit-details-marker{display:none}
+.tk3-scope .guide-title::after{content:"Thu gọn";font-weight:600;font-size:12.5px;color:var(--brand)}
+.tk3-scope .guide:not([open]) .guide-title::after{content:"Mở rộng"}
+.tk3-scope .guide ol{margin:0;padding:0 16px 14px;list-style:none;counter-reset:g}
+.tk3-scope .guide li{counter-increment:g;position:relative;padding:0 0 0 32px;margin-top:9px;font-size:13px;line-height:1.55;color:#33424f}
+.tk3-scope .guide li::before{content:counter(g);position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;background:var(--brand-tint);color:var(--brand);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.tk3-scope .guide li b{color:var(--ink)}
+.tk3-scope .toolbar-wrap{position:sticky;top:var(--bar);z-index:50;background:#dde4ec;padding:8px 0 2px}
+.tk3-scope .tk3-actions{max-width:210mm;margin:0 auto 8px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tk3-scope .tk3-toolbar{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.tk3-scope .tk3-toolbar .title{font-weight:700;font-size:14px}
+.tk3-scope .tk3-toolbar .hint{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.45}
+.tk3-scope .tk3-toolbar .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#exportBtn,#uploadBtn{padding:10px 18px;font-size:14px;font-weight:700;border-radius:8px;white-space:nowrap;align-self:flex-start}
+#exportBtn:disabled{background:#93a9c9}
+#uploadBtn{background:var(--ok)}#uploadBtn:hover:not(:disabled){background:var(--ok-dk)}#uploadBtn:disabled{background:#8fc4a4}
+#signedFileInput{font-size:12.5px;max-width:100%;flex:1 1 180px;min-width:0}
+#uploadStatus{max-width:210mm;margin:0 auto;padding:0 2px 4px;font-size:12.5px}
+#resultOverlay{display:none;position:fixed;inset:0;background:rgba(15,30,50,.5);z-index:1000;align-items:center;justify-content:center;padding:16px}
+#resultOverlay.show{display:flex}
+.result-modal{background:var(--surface);border-radius:14px;max-width:460px;width:100%;box-shadow:0 18px 50px rgba(15,30,50,.35);overflow:hidden;animation:resultPop .15s ease-out}
+.result-body{display:flex;gap:14px;padding:24px 24px 8px;align-items:flex-start}
+.result-icon{flex:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;line-height:1;background:var(--brand)}
+.result-modal.success .result-icon{background:var(--ok)}.result-modal.error .result-icon{background:var(--err)}.result-modal.warning .result-icon{background:var(--warn)}
+.result-text{flex:1}
+.result-title{font-size:16px;font-weight:700;margin:4px 0 6px}
+.result-message{font-size:13.5px;color:#3b4b5c;line-height:1.6;white-space:pre-line}
+.result-actions{padding:14px 24px 22px;text-align:right}
+.result-modal.success .result-actions button{background:var(--ok)}.result-modal.success .result-actions button:hover{background:var(--ok-dk)}
+.result-modal.error .result-actions button{background:var(--err)}.result-modal.error .result-actions button:hover{background:var(--err-dk)}
+.result-modal.warning .result-actions button{background:var(--warn)}.result-modal.warning .result-actions button:hover{background:var(--warn-dk)}
+
+/* --- Tờ giấy tờ khai: giữ nguyên để xuất PDF không đổi --- */
+.tk3-scope .page{width: 210mm; min-height: 297mm; margin: 0 auto; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.25); padding: 18mm 20mm 15mm 20mm; font-family: "Times New Roman", Times, serif; font-size: 13px; line-height: 1.5; color: #000; position: relative;}
+.tk3-scope .form-header-note{position: absolute; top: 12mm; right: 20mm; text-align: center; font-size: 11px; width: 62mm;}
+.tk3-scope .form-header-note .b{font-weight: bold;}
+.tk3-scope .form-header-note .i{font-style: italic;}
+.tk3-scope .quochieu{text-align: center; margin-top: 4mm;}
+.tk3-scope .quochieu .l1{font-weight: bold; font-size: 15px;}
+.tk3-scope .quochieu .l2{font-weight: bold; font-size: 13px; text-decoration: underline; margin-top: 2px;}
+.tk3-scope .title-block{text-align: center; margin-top: 16px;}
+.tk3-scope .title-block .t1{font-weight: bold; font-size: 15px;}
+.tk3-scope .title-block .t2{font-weight: bold; font-size: 13px;}
+.tk3-scope .ma-don-vi{font-weight: bold; margin-top: 14px;}
+.tk3-scope .fields{margin-top: 14px;}
+.tk3-scope .field-line{margin-bottom: 9px; display: flex; flex-wrap: wrap; align-items: flex-start; column-gap: 6px;}
+.tk3-scope .field-line .grow{flex: 1 1 auto;}
+.tk3-scope .field-line label{white-space: nowrap; padding-top: 1px;}
+.tk3-scope .dotted-input, .tk3-scope .clone-value{border: none; border-bottom: 1px dotted #000; background: transparent; font-family: inherit; font-size: 13px; padding: 0 2px; color: #000;}
+.tk3-scope .dotted-input:focus{outline: none; border-bottom: 1px solid #1657c9;}
+.tk3-scope input.dotted-input{width: 100%;}
+.tk3-scope .required-mark{color: #b30000; font-weight: bold;}
+.tk3-scope .dotted-input.invalid{border-bottom: 2px solid #b30000; background: #fff2f2;}
+.tk3-scope .radio-group.invalid{outline: 2px solid #b30000; outline-offset: 4px; border-radius: 4px; background: #fff2f2;}
+.tk3-scope textarea.dotted-input{width: 100%; resize: none; overflow: hidden; white-space: pre-wrap; word-break: break-word; display: block; min-height: 1.5em; vertical-align: bottom;}
+.tk3-scope .field-line textarea.dotted-input.grow{min-width: 0;}
+.tk3-scope .clone-value.wrap{display: inline-block; white-space: pre-wrap; word-break: break-word; vertical-align: top;}
+.tk3-scope .radio-group{display: flex; gap: 22px; flex-wrap: wrap; align-items: center; margin-left: 4px;}
+.tk3-scope .radio-group label{display: flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer;}
+.tk3-scope .sign-block{margin-top: 34px; text-align: right;}
+.tk3-scope .sign-block .place-date{font-style: italic; display: inline-flex; align-items: baseline; gap: 4px; flex-wrap: wrap; justify-content: flex-end; width: 100%;}
+.tk3-scope .sign-block input.dotted-input{width: auto; text-align: center;}
+.tk3-scope .sign-block .role{font-weight: bold; margin: 6px 0 0 auto; width: 78mm; text-align: center;}
+.tk3-scope .sign-block .ky-chu{font-style: italic; text-align: center; margin: 0 0 0 auto; width: 78mm;}
+.tk3-scope .sign-space{height: 26mm;}
+.tk3-scope .ghi-chu{margin-top: 26px; font-size: 11px; font-style: italic; text-align: justify;}
+.tk3-scope .ghi-chu b{font-style: italic;}
+
+/* --- Trạng thái nhập liệu trên màn hình (không ảnh hưởng bản xuất) --- */
+.tk3-scope .page{box-shadow:0 2px 14px rgba(21,34,50,.18)}
+.tk3-scope .dotted-input:not(.invalid):hover{background:#f1f7fe}
+.tk3-scope .dotted-input:focus{outline:none;border-bottom:1px solid var(--brand);background:#e8f1fc}
+.tk3-scope select.dotted-input{border:1px solid var(--field);border-radius:6px;background:#f7f9fc;padding:4px 6px;font-family:"Segoe UI",Arial,sans-serif;font-size:13px}
+
+@keyframes resultPop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+@media (max-width:860px){.tk3-scope .tk3-actions{grid-template-columns:1fr}.tk3-scope .toolbar-wrap{position:static}}
+@media (max-width:640px){.form-grid,.qr-body{grid-template-columns:1fr}.brand-name{display:none}.step-body{padding:16px}.identity-result .kv-label,.qr-info .kv-label{flex-basis:100%}.ir-message{margin-left:0}}
+@media (max-width:520px){.step{grid-template-columns:28px minmax(0,1fr);gap:0 10px}.step-num{width:28px;height:28px;font-size:13px}.step::before{left:13px;top:34px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media print{
+  .topbar,#tabLookup,#loading,.tk3-scope .toolbar-wrap,.tk3-scope .guide{display:none!important}
+  body{background:#fff}
+  .app{margin:0;padding:0;max-width:none}
+  #tk3Pane{background:#fff;padding:0;border-radius:0;overflow:visible}
+  .tk3-scope .page{box-shadow:none;margin:0}
+}
 </style>
 </head>
 <body>
 <div id="loading">Đang khởi tạo bộ đọc PDF...</div>
 
+<header class="topbar"><div class="topbar-in">
+ <div class="brand"><span class="brand-mark">BHXH</span><span class="brand-name">Tra cứu số liệu &amp; tờ khai</span></div>
+ <nav class="tabs">
+  <button type="button" id="tabBtnLookup" class="tab-btn active">Tra cứu số liệu đóng BHXH</button>
+  <button type="button" id="tabBtnTk3" class="tab-btn">Tờ khai TK3-TS</button>
+ </nav>
+</div></header>
+
 <div class="app">
-<div class="header">
-<h1>TRA CỨU THÔNG TIN ĐÓNG BHXH (số liệu tạm tính)</h1>
-<div class="sub">Bước 1: nhập thông tin và xuất PDF để ký số. Bước 2: chọn file PDF đã ký số để đọc chữ ký (dùng Pyodide chạy pypdf + cryptography ngay trong trình duyệt). Bước 3: bấm "Lấy số liệu" để truy xuất.</div>
+<div id="tabLookup" class="tab-pane">
+<div class="page-head">
+<h1>Tra cứu thông tin đóng BHXH</h1>
+<div class="sub">Số liệu tạm tính theo tháng. Xuất phiếu để ký số, chọn lại file đã ký, rồi lấy số liệu.</div>
 </div>
 
-<section id="infoForm" class="panel" style="margin-bottom:14px">
-<h3 style="margin:0 0 12px;font-size:15px"><span class="step-badge">1</span>Nhập thông tin &amp; xuất PDF để ký số</h3>
+<div class="steps">
+
+<section id="infoForm" class="step"><div class="step-num">1</div><div class="step-body">
+<h2 class="step-title">Nhập thông tin và xuất PDF để ký số</h2>
 <div class="form-grid">
  <div class="form-field">
   <label for="companyName">Tên công ty</label>
@@ -105,10 +238,343 @@ td:first-child{font-weight:600;color:#455a64}
   </div>
  </div>
 </div>
-<div class="toolbar" style="margin-top:6px">
+<div class="toolbar">
 <button id="exportPdfBtn">Xuất PDF để ký số</button>
 </div>
 <div class="status" id="formStatus">Điền đầy đủ thông tin rồi bấm "Xuất PDF để ký số". Sau khi ký số file PDF vừa tải về, hãy chọn lại file PDF đã ký ở bước 2 bên dưới.</div>
+</div></section>
+
+<section id="pdf1" class="step"><div class="step-num">2</div><div class="step-body">
+<h2 class="step-title">Chọn file PDF đã ký số để đọc chữ ký</h2>
+<div class="toolbar">
+<input id="pdfFile" class="file" type="file" accept=".pdf">
+<button id="copyPdfCompany" class="secondary">Sao chép tên công ty</button>
+</div>
+<div class="status" id="pdfStatus">Chưa chọn PDF. Chỉ nhận file đã xuất ở bước 1 và đã ký số.</div>
+<div class="box">
+<table><thead><tr><th>STT</th><th>Tên trường ký</th><th>Người ký</th><th>Công ty</th><th>Mã số thuế</th><th>Thời điểm ký</th><th>Sửa đổi sau ký?</th></tr></thead>
+<tbody id="sigList"></tbody></table>
+</div>
+</div></section>
+
+<section id="sheetPanel" class="step"><div class="step-num">3</div><div class="step-body">
+<h2 class="step-title">Lấy số liệu theo tháng đã chọn</h2>
+<div class="status note" id="scriptConfigNote"></div>
+<div class="toolbar">
+<button id="checkIdentityBtn">Lấy số liệu</button>
+</div>
+<div class="identity-result" id="identityResultBox">
+  <div class="ir-head"><div class="ir-icon" id="irIcon">i</div><div class="ir-title" id="irTitle"></div></div>
+  <div class="ir-message" id="irMessage"></div>
+</div>
+
+</div></section>
+
+<section id="qrPanel" class="step"><div class="step-num">4</div><div class="step-body">
+ <h2 class="step-title">Tạo mã QR chuyển khoản thanh toán</h2>
+ <div class="form-grid">
+  <div class="form-field full">
+   <label for="qrBankSelect">Chọn ngân hàng nhận tiền</label>
+   <select id="qrBankSelect"></select>
+  </div>
+ </div>
+ <div class="toolbar">
+  <button id="genQrBtn">Tạo mã QR</button>
+  <button id="downloadQrBtn" class="secondary" disabled>Tải ảnh QR</button>
+ </div>
+ <div class="status" id="qrStatus" style="display:none"></div>
+ <div class="qr-body">
+  <div class="qr-imgbox" id="qrImgBox"><div class="qr-placeholder">Chọn ngân hàng rồi bấm "Tạo mã QR" để hiển thị mã QR chuyển khoản tại đây.</div></div>
+  <div class="qr-info" id="qrInfoBox"></div>
+ </div>
+</div></section>
+</div><!-- /.steps -->
+</div><!-- /#tabLookup -->
+
+<section id="tabTk3" class="tab-pane" hidden>
+<div id="tk3Pane" class="tk3-scope">
+<details class="guide" open>
+      <summary class="guide-title">Hướng dẫn thao tác (4 bước)</summary>
+      <ol>
+        <li><b>Điền thông tin</b> vào tờ khai bên dưới — các mục có dấu <span class="required-mark">*</span> là <b>bắt buộc</b> phải nhập, chọn phương thức đóng, ngày ký.</li>
+        <li>Bấm nút xanh dương <b>"1. Xuất PDF"</b> — trình duyệt tự tải file PDF về máy bạn (kiểm tra thư mục Downloads/Tải xuống).</li>
+        <li><b>Tự ký số</b> file PDF vừa tải bằng phần mềm ký số của đơn vị bạn (VNPT-CA, Viettel-CA, FPT-CA...). Lưu lại file đã ký.</li>
+        <li>Quay lại trang này, ở khung xanh lá bên dưới bấm <b>"Chọn tệp"</b> để chọn đúng file PDF vừa ký, sau đó bấm <b>"2. Gửi bản đã ký số cho cơ quan BHXH"</b>.</li>
+      </ol>
+    </details>
+
+    <div class="toolbar-wrap">
+    <div class="tk3-actions">
+    <div class="tk3-toolbar">
+      <div>
+        <div class="title">Xuất PDF để ký số</div>
+        <div class="hint">Điền đủ các mục có dấu * rồi xuất file.</div>
+      </div>
+      <button id="exportBtn" onclick="exportPDF()">1. Xuất PDF</button>
+    </div>
+
+    <div class="tk3-toolbar step2">
+      <div>
+        <div class="title">Gửi bản đã ký số cho cơ quan BHXH</div>
+        <div class="hint">Chọn file PDF <b>đã ký bằng chứng thư số</b>. Lưu ý: chỉ gửi 1 lần, khi đã báo gửi thành công thì không gửi lại.</div>
+      </div>
+      <div class="controls">
+        <input type="file" id="signedFileInput" accept="application/pdf">
+        <button id="uploadBtn" onclick="uploadSignedPdf()">2. Gửi bản đã ký số cho cơ quan BHXH</button>
+      </div>
+    </div>
+    </div>
+    <div id="uploadStatus"></div>
+  </div>
+
+  <div class="page" id="page">
+    <div class="form-header-note">
+      <div class="b">Mẫu TK3-TS</div>
+      <div class="i">(Ban hành kèm theo Quyết định số: 366/QĐ-BHXH ngày 29/4/2026 của BHXH Việt Nam)</div>
+    </div>
+
+    <div class="quochieu">
+      <div class="l1">CỘNG HOÀ XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+      <div class="l2">Độc lập - Tự do - Hạnh phúc</div>
+    </div>
+
+    <div class="title-block">
+      <div class="t1">TỜ KHAI</div>
+      <div class="t2">ĐƠN VỊ ĐĂNG KÝ, ĐIỀU CHỈNH THÔNG TIN THAM GIA</div>
+      <div class="t2">BẢO HIỂM XÃ HỘI, BẢO HIỂM Y TẾ</div>
+    </div>
+
+    <div class="ma-don-vi">
+      Mã đơn vị<span class="required-mark">*</span>: <input type="text" id="ma_don_vi" class="dotted-input" style="width:220px;">
+    </div>
+
+    <div class="fields">
+
+      <div class="field-line">
+        <label>[01]. Tên đơn vị:<span class="required-mark">*</span></label>
+        <textarea id="f01" class="dotted-input grow auto-grow" rows="1"></textarea>
+        <label>[02]. Mã số thuế:<span class="required-mark">*</span></label>
+        <input type="text" id="f02" class="dotted-input" style="width:160px;">
+      </div>
+
+      <div class="field-line">
+        <label>[03]. Địa chỉ trụ sở chính:<span class="required-mark">*</span></label>
+        <textarea id="f03" class="dotted-input grow auto-grow" rows="1"></textarea>
+      </div>
+
+      <div class="field-line">
+        <label>[04]. Địa chỉ liên hệ:<span class="required-mark">*</span></label>
+        <textarea id="f04" class="dotted-input grow auto-grow" rows="1"></textarea>
+      </div>
+
+      <div class="field-line">
+        <label>[05]. Địa chỉ thư điện tử:<span class="required-mark">*</span></label>
+        <input type="text" id="f05" class="dotted-input" style="width:220px;">
+        <label>[06]. Số điện thoại liên hệ:<span class="required-mark">*</span></label>
+        <input type="text" id="f06" class="dotted-input" style="width:150px;">
+      </div>
+
+      <div class="field-line">
+        <label>[07]. Người đại diện:<span class="required-mark">*</span></label>
+        <textarea id="f07" class="dotted-input grow auto-grow" rows="1"></textarea>
+        <label>[08]. Số định danh cá nhân:<span class="required-mark">*</span></label>
+        <input type="text" id="f08" class="dotted-input" style="width:160px;">
+      </div>
+
+      <div class="field-line">
+        <label>[09]. Loại hình đơn vị:</label>
+        <textarea id="f09" class="dotted-input grow auto-grow" rows="1"></textarea>
+      </div>
+
+      <div class="field-line">
+        <label>[10]. Ngành kinh tế (chỉ chọn 1 ngành sx, kd chính):<span class="required-mark">*</span></label>
+        <select id="f10_picker" class="dotted-input grow no-export" onchange="document.getElementById('f10').value = this.value; document.getElementById('f10').classList.remove('invalid');">
+          <option value="">-- Chọn ngành nghề để tự động điền mã --</option>
+          <optgroup label="1. NÔNG NGHIỆP, LÂM NGHIỆP VÀ THỦY SẢN (A)">
+<option value="A01">A01 - Nông nghiệp và hoạt động dịch vụ có liên quan</option>
+<option value="A02">A02 - Lâm nghiệp và hoạt động dịch vụ có liên quan</option>
+<option value="A03">A03 - Khai thác, nuôi trồng thủy sản và hoạt động dịch vụ có liên quan</option>
+</optgroup>
+<optgroup label="2. KHAI KHOÁNG (B)">
+<option value="B05">B05 - Khai thác than cứng và than non</option>
+<option value="B06">B06 - Khai thác dầu thô và khí đốt tự nhiên</option>
+<option value="B07">B07 - Khai thác quặng kim loại</option>
+<option value="B08">B08 - Khai khoáng khác</option>
+<option value="B09">B09 - Hoạt động dịch vụ hỗ trợ khai khoáng</option>
+</optgroup>
+<optgroup label="3. CÔNG NGHIỆP CHẾ BIẾN, CHẾ TẠO (C)">
+<option value="C10">C10 - Sản xuất, chế biến thực phẩm</option>
+<option value="C11">C11 - Sản xuất đồ uống</option>
+<option value="C12">C12 - Sản xuất sản phẩm thuốc lá</option>
+<option value="C13">C13 - Dệt</option>
+<option value="C14">C14 - Sản xuất trang phục</option>
+<option value="C15">C15 - Sản xuất da và các sản phẩm có liên quan</option>
+<option value="C16">C16 - Chế biến gỗ và sản xuất sản phẩm từ gỗ, tre, nứa (trừ giường, tủ, bàn, ghế); sản xuất sản phẩm từ rơm, rạ và vật liệu tết bện</option>
+<option value="C17">C17 - Sản xuất giấy và sản phẩm từ giấy</option>
+<option value="C18">C18 - In, sao chép bản ghi các loại</option>
+<option value="C19">C19 - Sản xuất than cốc, sản phẩm dầu mỏ tinh chế</option>
+<option value="C20">C20 - Sản xuất hóa chất và sản phẩm hóa chất</option>
+<option value="C21">C21 - Sản xuất thuốc, hóa dược và dược liệu</option>
+<option value="C22">C22 - Sản xuất sản phẩm từ cao su và plastic</option>
+<option value="C23">C23 - Sản xuất sản phẩm từ khoáng phi kim loại khác</option>
+<option value="C24">C24 - Sản xuất kim loại</option>
+<option value="C25">C25 - Sản xuất sản phẩm từ kim loại đúc sẵn (trừ máy móc, thiết bị)</option>
+<option value="C26">C26 - Sản xuất sản phẩm điện tử, máy tính và sản phẩm quang học</option>
+<option value="C27">C27 - Sản xuất thiết bị điện</option>
+<option value="C28">C28 - Sản xuất máy móc, thiết bị chưa được phân vào đâu</option>
+<option value="C29">C29 - Sản xuất ô tô và xe có động cơ khác</option>
+<option value="C30">C30 - Sản xuất phương tiện vận tải khác</option>
+<option value="C31">C31 - Sản xuất giường, tủ, bàn, ghế</option>
+<option value="C32">C32 - Công nghiệp chế biến, chế tạo khác</option>
+<option value="C33">C33 - Sửa chữa, bảo dưỡng và lắp đặt máy móc, thiết bị</option>
+</optgroup>
+<optgroup label="4. SẢN XUẤT VÀ PHÂN PHỐI ĐIỆN, KHÍ ĐỐT, NƯỚC NÓNG, HƠI NƯỚC VÀ ĐIỀU HOÀ KHÔNG KHÍ (D)">
+<option value="D35">D35 - Sản xuất và phân phối điện, khí đốt, nước nóng, hơi nước và điều hoà không khí</option>
+</optgroup>
+<optgroup label="5. CUNG CẤP NƯỚC; HOẠT ĐỘNG QUẢN LÝ VÀ XỬ LÝ RÁC THẢI, NƯỚC THẢI (E)">
+<option value="E36">E36 - Khai thác, xử lý và cung cấp nước</option>
+<option value="E37">E37 - Thoát nước và xử lý nước thải</option>
+<option value="E38">E38 - Hoạt động thu gom, xử lý và tiêu hủy rác thải; tái chế phế liệu</option>
+<option value="E39">E39 - Xử lý ô nhiễm và hoạt động quản lý chất thải khác</option>
+</optgroup>
+<optgroup label="6. XÂY DỰNG (F)">
+<option value="F41">F41 - Xây dựng nhà các loại</option>
+<option value="F42">F42 - Xây dựng công trình kỹ thuật dân dụng</option>
+<option value="F43">F43 - Hoạt động xây dựng chuyên dụng</option>
+</optgroup>
+<optgroup label="7. BÁN BUÔN VÀ BÁN LẺ (G)">
+<option value="G46">G46 - Bán buôn</option>
+<option value="G47">G47 - Bán lẻ</option>
+</optgroup>
+<optgroup label="8. VẬN TẢI, KHO BÃI (H)">
+<option value="H49">H49 - Vận tải đường sắt, đường bộ và vận tải bằng đường ống</option>
+<option value="H50">H50 - Vận tải đường thủy</option>
+<option value="H51">H51 - Vận tải hàng không</option>
+<option value="H52">H52 - Kho bãi và các hoạt động hỗ trợ cho vận tải</option>
+<option value="H53">H53 - Bưu chính và chuyển phát</option>
+</optgroup>
+<optgroup label="9. DỊCH VỤ LƯU TRÚ VÀ ĂN UỐNG (I)">
+<option value="I55">I55 - Dịch vụ lưu trú</option>
+<option value="I56">I56 - Dịch vụ ăn uống</option>
+</optgroup>
+<optgroup label="10. HOẠT ĐỘNG XUẤT BẢN, PHÁT SÓNG, SẢN XUẤT VÀ PHÂN PHỐI NỘI DUNG (J)">
+<option value="J58">J58 - Hoạt động xuất bản</option>
+<option value="J59">J59 - Hoạt động sản xuất phim điện ảnh, video, chương trình truyền hình, ghi âm và xuất bản âm nhạc</option>
+<option value="J60">J60 - Hoạt động xây dựng chương trình, phát sóng, thông tấn và phân phối nội dung khác</option>
+</optgroup>
+<optgroup label="11. HOẠT ĐỘNG VIỄN THÔNG; LẬP TRÌNH MÁY TÍNH, TƯ VẤN, CƠ SỞ HẠ TẦNG MÁY TÍNH VÀ CÁC DỊCH VỤ THÔNG TIN KHÁC (K)">
+<option value="K61">K61 - Hoạt động viễn thông</option>
+<option value="K62">K62 - Lập trình máy tính, dịch vụ tư vấn và các hoạt động liên quan</option>
+<option value="K63">K63 - Cơ sở hạ tầng công nghệ thông tin, xử lý dữ liệu, lưu trữ và các dịch vụ thông tin liên quan khác</option>
+</optgroup>
+<optgroup label="12. HOẠT ĐỘNG TÀI CHÍNH, NGÂN HÀNG VÀ BẢO HIỂM (L)">
+<option value="L64">L64 - Hoạt động dịch vụ tài chính (trừ bảo hiểm và hoạt động quỹ hưu trí)</option>
+<option value="L65">L65 - Bảo hiểm, tái bảo hiểm và hoạt động quỹ hưu trí (trừ bảo đảm xã hội bắt buộc)</option>
+<option value="L66">L66 - Hoạt động tài chính khác</option>
+</optgroup>
+<optgroup label="13. HOẠT ĐỘNG KINH DOANH BẤT ĐỘNG SẢN (M)">
+<option value="M68">M68 - Hoạt động kinh doanh bất động sản</option>
+</optgroup>
+<optgroup label="14. HOẠT ĐỘNG CHUYÊN MÔN, KHOA HỌC VÀ CÔNG NGHỆ (N)">
+<option value="N69">N69 - Hoạt động pháp luật, kế toán và kiểm toán</option>
+<option value="N70">N70 - Hoạt động của trụ sở văn phòng; hoạt động tư vấn quản lý</option>
+<option value="N71">N71 - Hoạt động kiến trúc; kiểm tra và phân tích kỹ thuật</option>
+<option value="N72">N72 - Nghiên cứu khoa học và phát triển công nghệ</option>
+<option value="N73">N73 - Quảng cáo, nghiên cứu thị trường và quan hệ công chúng</option>
+<option value="N74">N74 - Hoạt động chuyên môn, khoa học và công nghệ khác</option>
+<option value="N75">N75 - Hoạt động thú y</option>
+</optgroup>
+<optgroup label="15. HOẠT ĐỘNG HÀNH CHÍNH VÀ DỊCH VỤ HỖ TRỢ (O)">
+<option value="O77">O77 - Cho thuê hoạt động</option>
+<option value="O78">O78 - Hoạt động dịch vụ lao động và việc làm</option>
+<option value="O79">O79 - Hoạt động của các đại lý lữ hành, kinh doanh tua du lịch và hoạt động liên quan đến du lịch khác</option>
+<option value="O80">O80 - Hoạt động điều tra bảo đảm an toàn</option>
+<option value="O81">O81 - Hoạt động dịch vụ vệ sinh nhà cửa, công trình và cảnh quan</option>
+<option value="O82">O82 - Hoạt động hành chính, hỗ trợ văn phòng và các hoạt động hỗ trợ kinh doanh khác</option>
+</optgroup>
+<optgroup label="16. HOẠT ĐỘNG CỦA ĐẢNG CỘNG SẢN, TỔ CHỨC CHÍNH TRỊ - XÃ HỘI, QUẢN LÝ NHÀ NƯỚC, AN NINH QUỐC PHÒNG; BẢO ĐẢM XÃ HỘI BẮT BUỘC (P)">
+<option value="P84">P84 - Hoạt động của Đảng Cộng sản, tổ chức chính trị - xã hội, quản lý nhà nước, an ninh quốc phòng, đối ngoại; bảo đảm xã hội bắt buộc</option>
+</optgroup>
+<optgroup label="17. GIÁO DỤC VÀ ĐÀO TẠO (Q)">
+<option value="Q85">Q85 - Giáo dục và đào tạo</option>
+</optgroup>
+<optgroup label="18. Y TẾ VÀ HOẠT ĐỘNG TRỢ GIÚP XÃ HỘI (R)">
+<option value="R86">R86 - Hoạt động y tế</option>
+<option value="R87">R87 - Hoạt động chăm sóc, điều dưỡng tập trung</option>
+<option value="R88">R88 - Hoạt động trợ giúp xã hội không tập trung</option>
+</optgroup>
+<optgroup label="19. NGHỆ THUẬT, THỂ THAO VÀ GIẢI TRÍ (S)">
+<option value="S90">S90 - Hoạt động sáng tạo nghệ thuật và biểu diễn nghệ thuật</option>
+<option value="S91">S91 - Hoạt động của thư viện, lưu trữ, bảo tàng và các hoạt động văn hóa khác</option>
+<option value="S92">S92 - Hoạt động xổ số, cá cược và đánh bạc</option>
+<option value="S93">S93 - Hoạt động thể thao, vui chơi và giải trí</option>
+</optgroup>
+<optgroup label="20. HOẠT ĐỘNG DỊCH VỤ KHÁC (T)">
+<option value="T94">T94 - Hoạt động của các hiệp hội, tổ chức khác</option>
+<option value="T95">T95 - Sửa chữa, bảo dưỡng máy tính, đồ dùng cá nhân và gia đình, ô tô, mô tô, xe máy và xe có động cơ khác</option>
+<option value="T96">T96 - Hoạt động dịch vụ phục vụ cá nhân</option>
+</optgroup>
+<optgroup label="21. HOẠT ĐỘNG LÀM THUÊ CÁC CÔNG VIỆC TRONG CÁC HỘ GIA ĐÌNH, SẢN XUẤT SẢN PHẨM VẬT CHẤT VÀ DỊCH VỤ TỰ TIÊU DÙNG CỦA HỘ GIA ĐÌNH (U)">
+<option value="U97">U97 - Hoạt động làm thuê công việc gia đình trong các hộ gia đình</option>
+<option value="U98">U98 - Hoạt động sản xuất sản phẩm vật chất và dịch vụ tự tiêu dùng của hộ gia đình</option>
+</optgroup>
+<optgroup label="22. HOẠT ĐỘNG CỦA CÁC TỔ CHỨC VÀ CƠ QUAN QUỐC TẾ (V)">
+<option value="V99">V99 - Hoạt động của các tổ chức và cơ quan quốc tế</option>
+</optgroup>
+        </select>
+        <span class="no-export" style="margin-left:8px;">Mã ngành:</span>
+        <input type="text" id="f10" class="dotted-input" style="width:110px;" readonly>
+      </div>
+
+      <div class="field-line">
+        <label>[11]. Đối tượng tham gia:</label>
+        <textarea id="f11" class="dotted-input grow auto-grow" rows="1"></textarea>
+      </div>
+
+      <div class="field-line">
+        <label>[12]. Phương thức đóng:</label>
+        <div class="radio-group">
+          <label><input type="radio" name="f12" value="Hằng tháng"> Hằng tháng</label>
+          <label><input type="radio" name="f12" value="03 tháng"> 03 tháng</label>
+          <label><input type="radio" name="f12" value="06 tháng"> 06 tháng</label>
+        </div>
+      </div>
+
+      <div class="field-line">
+        <label>[13]. Đăng ký tham gia tại cơ quan BHXH:</label>
+        <textarea id="f13" class="dotted-input grow auto-grow" rows="1"></textarea>
+      </div>
+
+      <div class="field-line">
+        <label>[14]. Nội dung thay đổi, yêu cầu:</label>
+        <textarea id="f14" class="dotted-input grow auto-grow" rows="1"></textarea>
+      </div>
+
+    </div>
+
+    <div class="sign-block">
+      <div class="place-date">
+        <input type="text" id="noi_ky" class="dotted-input" style="width:110px;" placeholder="...........">
+        <span>, ngày</span>
+        <input type="text" id="ngay" class="dotted-input" style="width:26px;">
+        <span>tháng</span>
+        <input type="text" id="thang" class="dotted-input" style="width:26px;">
+        <span>năm</span>
+        <input type="text" id="nam" class="dotted-input" style="width:50px;">
+        <span class="required-mark">*</span>
+      </div>
+      <div class="role">Đơn vị sử dụng lao động/Cơ quan quản lý người chỉ tham gia BHYT/Tổ chức hỗ trợ phát triển đối tượng</div>
+      <div class="ky-chu">(Ký, ghi rõ họ tên, đóng dấu)</div>
+      <div class="sign-space"></div>
+    </div>
+
+    <div class="ghi-chu">
+      <b>Ghi chú:</b> Trường hợp kê khai biểu mẫu điện tử thì các trường thông tin đã được kết nối với Cơ sở dữ liệu Quốc gia về đăng ký doanh nghiệp, Cơ sở dữ liệu Quốc gia về bảo hiểm, các cơ sở dữ liệu chuyên nghành khác, ... trên Cổng dịch vụ công Quốc gia thì thông tin được tự động điền vào tờ khai điện tử. Đơn vị, tổ chức chỉ điền thông tin chưa có trong cơ sở dữ liệu.
+    </div>
+  </div>
+
+
+</div>
 </section>
 
 <!-- Mẫu ẩn dùng để render ra ảnh rồi nhúng vào PDF (giữ đúng dấu tiếng Việt) -->
@@ -130,53 +596,26 @@ td:first-child{font-weight:600;color:#455a64}
  </div>
 </div>
 
-<div class="steps-row">
-<section id="pdf1" class="panel">
-<h3 style="margin:0 0 12px;font-size:15px"><span class="step-badge">2</span>Chọn file PDF đã ký số để đọc chữ ký</h3>
-<div class="toolbar">
-<input id="pdfFile" class="file" type="file" accept=".pdf">
-<button id="copyPdfCompany" class="secondary">Sao chép tên công ty</button>
-</div>
-<div class="status" id="pdfStatus">Chưa chọn PDF.</div>
-<div class="box" style="margin-bottom:12px">
-<table><thead><tr><th>STT</th><th>Tên trường ký</th><th>Người ký</th><th>Công ty</th><th>Mã số thuế</th><th>Thời điểm ký</th><th>Sửa đổi sau ký?</th></tr></thead>
-<tbody id="sigList"></tbody></table>
-</div>
-</section>
 
-<section id="sheetPanel" class="panel">
-<h3 style="margin:0 0 10px;font-size:15px"><span class="step-badge">3</span>Lấy số liệu theo tháng đã chọn</h3>
-<div class="status" id="scriptConfigNote" style="background:#fff8e1;color:#7a5b00;border:1px solid #f0d48a"></div>
-<div class="toolbar" style="margin-top:10px">
-<button id="checkIdentityBtn">Lấy số liệu</button>
-</div>
-<div class="identity-result" id="identityResultBox">
-  <div class="ir-head"><div class="ir-icon" id="irIcon">i</div><div class="ir-title" id="irTitle"></div></div>
-  <div class="ir-message" id="irMessage"></div>
-</div>
+</div><!-- /.app -->
 
-<div id="qrPanel">
- <h3 style="margin:14px 0 10px;font-size:15px"><span class="step-badge">4</span>Tạo mã QR chuyển khoản thanh toán</h3>
- <div class="form-grid" style="margin-bottom:10px">
-  <div class="form-field full">
-   <label for="qrBankSelect">Chọn ngân hàng nhận tiền</label>
-   <select id="qrBankSelect"></select>
+<div id="resultOverlay" onclick="if (event.target === this) closeResultModal();">
+    <div class="result-modal" id="resultModal">
+      <div class="result-body">
+        <div class="result-icon" id="resultIcon"></div>
+        <div class="result-text">
+          <div class="result-title" id="resultTitle"></div>
+          <div class="result-message" id="resultMessage"></div>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button type="button" onclick="closeResultModal()">Đã hiểu</button>
+      </div>
+    </div>
   </div>
- </div>
- <div class="toolbar" style="margin-top:0">
-  <button id="genQrBtn">Tạo mã QR</button>
-  <button id="downloadQrBtn" class="secondary" disabled>Tải ảnh QR</button>
- </div>
- <div class="status" id="qrStatus" style="display:none"></div>
- <div class="qr-body" style="margin-top:10px">
-  <div class="qr-imgbox" id="qrImgBox"><div class="qr-placeholder">Chọn ngân hàng rồi bấm "Tạo mã QR" để hiển thị mã QR chuyển khoản tại đây.</div></div>
-  <div class="qr-info" id="qrInfoBox"></div>
- </div>
-</div>
-</section>
-</div>
-</div>
 
+
+  
 <script src="https://cdn.jsdelivr.net/pyodide/v0.28.2/full/pyodide.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -632,6 +1071,55 @@ function getLookupInfo(){
   };
 }
 
+/* ===== Ràng buộc file ở bước 2 với file xuất ở bước 1 =====
+   Khi xuất PDF, trình duyệt ghi vào metadata (Keywords) một dấu nhận diện được băm từ
+   Tên công ty + MST + Mã BHXH + Tháng + Năm. Ký số kiểu "incremental" giữ nguyên phần
+   gốc của file nên dấu này vẫn còn trong file đã ký. Ở bước 2, chỉ nhận file có dấu khớp
+   với thông tin đang nhập ở bước 1. */
+const EXPORT_TAG = 'BHXHTRACUU:v1:';
+function hash53(str, seed) {
+  let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+}
+function makeExportToken(info) {
+  const norm = x => String(x == null ? '' : x).normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase();
+  const s = 'BHXH-TRACUU-v1|' + [info.ten_cong_ty, info.mst, info.ma_bhxh, info.thang, info.nam].map(norm).join('|');
+  return hash53(s, 1).toString(16).padStart(14, '0') + hash53(s, 2).toString(16).padStart(14, '0');
+}
+function readExportTokens(bytes) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  const re = /BHXHTRACUU:v1:([0-9a-f]{28})/g, out = [];
+  let m;
+  while ((m = re.exec(s))) out.push(m[1]);
+  return out;
+}
+// Trả về {ok:true} hoặc {ok:false, title, message}
+function verifyPdfMatchesStep1(bytes) {
+  const info = getLookupInfo();
+  if (!info.ten_cong_ty || !info.mst || !info.ma_bhxh) {
+    return { ok: false, title: 'Chưa có thông tin ở bước 1',
+      message: 'Hãy nhập lại Tên công ty, Mã số thuế, Mã BHXH và chọn tháng/năm giống lúc xuất PDF, rồi chọn lại file đã ký.' };
+  }
+  const found = readExportTokens(bytes);
+  if (!found.length) {
+    return { ok: false, title: 'Không phải file xuất từ bước 1',
+      message: 'File này không có dấu nhận diện của phiếu xuất ở bước 1. Hãy chọn đúng file "PhieuTraCuu_...pdf" đã ký số. Nếu phần mềm ký số đã ghi lại file làm mất dấu này, hãy xuất lại và ký lại.' };
+  }
+  if (found.indexOf(makeExportToken(info)) < 0) {
+    return { ok: false, title: 'File không khớp thông tin ở bước 1',
+      message: 'File này được xuất với Tên công ty, MST, Mã BHXH hoặc tháng/năm khác với thông tin đang nhập ở bước 1. Hãy sửa lại thông tin cho khớp hoặc chọn đúng file.' };
+  }
+  return { ok: true };
+}
+
 async function exportPdfForm(){
   const info = getLookupInfo();
   const statusEl = $('formStatus');
@@ -673,6 +1161,12 @@ async function exportPdfForm(){
       pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH, undefined, 'FAST');
       heightLeft -= pageHeight;
     }
+    pdf.setProperties({
+      title: 'Phieu de nghi tra cuu du lieu BHXH',
+      subject: 'Thang ' + info.thang + '/' + info.nam,
+      keywords: EXPORT_TAG + makeExportToken(info),
+      creator: 'BHXH tra cuu'
+    });
     const fname = 'PhieuTraCuu_' + info.mst + '_' + info.thang + '-' + info.nam + '.pdf';
     pdf.save(fname);
     statusEl.style.color = '#0a8a3d';
@@ -721,6 +1215,11 @@ async function checkIdentityViaScript() {
   }
   if (!lastPdfBytes) {
     showIdentityResult('warning', 'Chưa có file PDF để tải lên Drive', 'Vui lòng chọn lại file PDF đã ký số ở bước 2 trước khi lấy số liệu.');
+    return;
+  }
+  const chk = verifyPdfMatchesStep1(lastPdfBytes);
+  if (!chk.ok) {
+    showIdentityResult('warning', chk.title, chk.message + ' (Thông tin ở bước 1 có thể đã bị sửa sau khi chọn file.)');
     return;
   }
   if (!GOOGLE_SCRIPT_IDENTITY_URL || GOOGLE_SCRIPT_IDENTITY_URL.indexOf('DÁN_URL_') === 0) {
@@ -805,6 +1304,16 @@ $('pdfFile').onchange=async e=>{
  $('pdfStatus').textContent='Đang đọc PDF bằng pypdf + cryptography...';
  try{
   const b=new Uint8Array(await f.arrayBuffer());
+  const chk=verifyPdfMatchesStep1(b);
+  if(!chk.ok){
+   lastSig=null; lastPdfBytes=null; lastPdfName='';
+   $('sigList').innerHTML=''; $('qrPanel').classList.remove('show');
+   e.target.value='';
+   $('pdfStatus').style.color='#b30000';
+   $('pdfStatus').textContent=chk.title+'. '+chk.message;
+   return;
+  }
+  $('pdfStatus').style.color='';
   lastPdfBytes=b; lastPdfName=f.name;
   const sigs=await pyCall('run_pdf',b,f.name);
   showSig(sigs);
@@ -813,6 +1322,416 @@ $('pdfFile').onchange=async e=>{
 };
 
 $('copyPdfCompany').onclick=()=>{if(lastSig)navigator.clipboard?.writeText(lastSig.ten_cong_ty||lastSig.ten_chu_the||lastSig.signer_name_field||'')};
+</script>
+<script>
+/* ===== TỜ KHAI TK3-TS ===== */
+/* ===== Chuyển tab: Tra cứu số liệu <-> Tờ khai TK3-TS ===== */
+function switchTab(name) {
+  const isTk3 = (name === 'tk3');
+  document.getElementById('tabLookup').hidden = isTk3;
+  document.getElementById('tabTk3').hidden = !isTk3;
+  document.getElementById('tabBtnLookup').classList.toggle('active', !isTk3);
+  document.getElementById('tabBtnTk3').classList.toggle('active', isTk3);
+  if (isTk3) {
+    // Ô textarea tự giãn cần tính lại chiều cao khi tab vừa được hiện ra
+    document.querySelectorAll('textarea.auto-grow').forEach(autoGrowTextarea);
+  }
+  try { history.replaceState(null, '', isTk3 ? '#tk3' : location.pathname + location.search); } catch (e) {}
+}
+document.getElementById('tabBtnLookup').onclick = function () { switchTab('lookup'); };
+document.getElementById('tabBtnTk3').onclick = function () { switchTab('tk3'); };
+if (location.hash === '#tk3') switchTab('tk3');
+
+function buildPrintableClone() {
+  const page = document.getElementById('page');
+  const clone = page.cloneNode(true);
+
+  clone.querySelectorAll('.no-export').forEach(function (el) {
+    el.remove();
+  });
+
+  clone.querySelectorAll('textarea').forEach(function (ta) {
+    const original = document.getElementById(ta.id);
+    const span = document.createElement('span');
+    span.className = 'clone-value wrap';
+    span.textContent = original ? original.value : '';
+    if (ta.classList.contains('grow')) span.style.flex = '1 1 auto';
+    if (!span.textContent) span.innerHTML = '&nbsp;';
+    ta.parentNode.replaceChild(span, ta);
+  });
+
+  clone.querySelectorAll('input[type="text"]').forEach(function (inp) {
+    const original = document.getElementById(inp.id);
+    const span = document.createElement('span');
+    span.className = 'clone-value';
+    span.textContent = original ? original.value : '';
+    const w = inp.style.width;
+    if (w) span.style.minWidth = w;
+    if (inp.classList.contains('grow')) span.style.flex = '1 1 auto';
+    if (!span.textContent) span.innerHTML = '&nbsp;';
+    inp.parentNode.replaceChild(span, inp);
+  });
+
+  clone.querySelectorAll('input[type="radio"]').forEach(function (radio) {
+    const original = document.querySelector('input[name="' + radio.name + '"][value="' + radio.value.replace(/"/g, '\\"') + '"]');
+    const mark = document.createElement('span');
+    mark.textContent = (original && original.checked) ? '☑' : '☐';
+    mark.style.fontSize = '15px';
+    mark.style.marginRight = '2px';
+    radio.parentNode.insertBefore(mark, radio);
+    radio.parentNode.removeChild(radio);
+  });
+
+  return clone;
+}
+
+function autoGrowTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+document.querySelectorAll('textarea.auto-grow').forEach(function (ta) {
+  autoGrowTextarea(ta);
+  ta.addEventListener('input', function () { autoGrowTextarea(ta); });
+});
+window.addEventListener('load', function () {
+  document.querySelectorAll('textarea.auto-grow').forEach(autoGrowTextarea);
+});
+
+REQUIRED_TEXT_IDS_LIVE_BINDING();
+function REQUIRED_TEXT_IDS_LIVE_BINDING() {
+  const ids = ['ma_don_vi', 'f01', 'f02', 'f03', 'f04', 'f05', 'f06', 'f07', 'f08', 'f10', 'noi_ky', 'ngay', 'thang', 'nam'];
+  ids.forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', function () {
+      if (el.value && el.value.trim()) el.classList.remove('invalid');
+    });
+  });
+  document.querySelectorAll('input[name="f12"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      const group = document.querySelector('.radio-group');
+      if (group) group.classList.remove('invalid');
+    });
+  });
+}
+
+const REQUIRED_TEXT_IDS = ['ma_don_vi', 'f01', 'f02', 'f03', 'f04', 'f05', 'f06', 'f07', 'f08', 'f10', 'noi_ky', 'ngay', 'thang', 'nam'];
+
+function validateRequiredFields() {
+  let firstInvalid = null;
+  let missingCount = 0;
+
+  REQUIRED_TEXT_IDS.forEach(function (id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const empty = !el.value || !el.value.trim();
+    el.classList.toggle('invalid', empty);
+    if (empty) {
+      missingCount++;
+      if (!firstInvalid) firstInvalid = el;
+    }
+  });
+
+  if (firstInvalid) {
+    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (typeof firstInvalid.focus === 'function') firstInvalid.focus();
+  }
+
+  return missingCount === 0;
+}
+
+function sanitizeFileName(s) {
+  return (s || '').trim().replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_');
+}
+
+/* ===== CẤU HÌNH GỬI GOOGLE DRIVE =====
+   Dán URL Web App của Google Apps Script (xem file Code.gs) vào đây trước khi
+   gửi file này cho các đơn vị ngoài ngành. Dạng URL:
+   https://script.google.com/macros/s/XXXXXXXXXXXX/exec */
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbFRCVqyUC0rzO51ttKfHfJ2ZMN1pyBgMnlG__218kwxJDHgGfRzlk36lMGuTO0G9Z/exec';
+
+function buildSignedFileName() {
+  const ten = sanitizeFileName(document.getElementById('f01').value) || 'DonVi';
+  const now = new Date();
+  const pad = function (n) { return String(n).padStart(2, '0'); };
+  const ts = now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + '_' + pad(now.getHours()) + pad(now.getMinutes());
+  return 'TK3-TS_' + ten + '_' + ts + '_daky.pdf';
+}
+
+function collectFormData() {
+  const ids = ['ma_don_vi', 'f01', 'f02', 'f03', 'f04', 'f05', 'f06', 'f07', 'f08', 'f09', 'f10', 'f11', 'f13', 'f14', 'noi_ky', 'ngay', 'thang', 'nam'];
+  const data = {};
+  ids.forEach(function (id) {
+    const el = document.getElementById(id);
+    data[id] = el ? el.value : '';
+  });
+  const checkedRadio = document.querySelector('input[name="f12"]:checked');
+  data.f12 = checkedRadio ? checkedRadio.value : '';
+  return data;
+}
+
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+/* Kiểm tra "thô" xem file PDF có nhúng chữ ký số hay không, bằng cách tìm dấu hiệu
+   /ByteRange - đây là thành phần bắt buộc phải có trong mọi chữ ký số chuẩn PAdES/PKCS#7
+   (VNPT-CA, Viettel-CA, FPT-CA, VGCA...). Đây KHÔNG phải là xác thực tính hợp lệ của
+   chữ ký (còn hạn, đúng người ký...), chỉ là kiểm tra "đã từng được ký hay chưa". */
+function hasSignatureMarkers(arrayBuffer) {
+  const text = new TextDecoder('iso-8859-1').decode(arrayBuffer);
+  return text.indexOf('/ByteRange') !== -1;
+}
+
+function escapeXml(s) {
+  return (s || '').toString()
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+/* Quy đổi giá trị radio [12] Phương thức đóng sang mã số như BHXH quy định
+   trong file XML gốc (1 = Hằng tháng, 2 = 03 tháng, 3 = 06 tháng). */
+function phuongThucDongCode(value) {
+  switch (value) {
+    case 'Hằng tháng': return '1';
+    case '03 tháng': return '2';
+    case '06 tháng': return '3';
+    default: return '';
+  }
+}
+
+/* Sinh nội dung file XML kèm theo PDF, đúng cấu trúc thẻ như file TK3-TS mẫu
+   (gốc <TK3-TS><NoiDung>...</NoiDung></TK3-TS> do phần mềm kê khai BHXH xuất ra).
+   Không sinh phần <Cky> (chữ ký số XML-DSig) vì đó là chữ ký điện tử thật do phần
+   mềm ký số của đơn vị (VNPT-CA, Viettel-CA, FPT-CA, VGCA...) tạo ra khi ký trực
+   tiếp trên Cổng dịch vụ công / phần mềm kê khai chính thức — không thể và không
+   nên tự tạo giả trong công cụ nội bộ này. File XML này chỉ dùng để lưu trữ, đối
+   chiếu dữ liệu song song với bản PDF đã ký, không phải là hồ sơ nộp trực tiếp cho
+   cơ quan BHXH.
+   Các thẻ chưa có ô nhập tương ứng trên tờ khai (SoQuyetDinh, NoiCapQuyetDinh,
+   HoSoKemTheo, DiaChi_Tinh, DiaChi_Huyen, DiaChi_Xa) được để trống. */
+function buildFormXml(form) {
+  const lines = [];
+  lines.push('<?xml version="1.0" encoding="utf-8"?>');
+  lines.push('<TK3-TS xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">');
+  lines.push('<NoiDung>');
+  lines.push('<STT>1</STT>');
+  lines.push('<MaDonVi>' + escapeXml(form.ma_don_vi) + '</MaDonVi>');
+  lines.push('<TenDonVi>' + escapeXml(form.f01) + '</TenDonVi>');
+  lines.push('<MaSoThue>' + escapeXml(form.f02) + '</MaSoThue>');
+  lines.push('<DiaChi>' + escapeXml(form.f03) + '</DiaChi>');
+  lines.push('<DiaChiDKKD>' + escapeXml(form.f04) + '</DiaChiDKKD>');
+  lines.push('<LoaiHinh>' + escapeXml(form.f09) + '</LoaiHinh>');
+  lines.push('<NganhNgheSX>' + escapeXml(form.f10) + '</NganhNgheSX>');
+  lines.push('<DienThoai>' + escapeXml(form.f06) + '</DienThoai>');
+  lines.push('<Email>' + escapeXml(form.f05) + '</Email>');
+  lines.push('<SoQuyetDinh></SoQuyetDinh>');
+  lines.push('<NoiCapQuyetDinh></NoiCapQuyetDinh>');
+  lines.push('<PhuongThucDong>' + escapeXml(phuongThucDongCode(form.f12)) + '</PhuongThucDong>');
+  lines.push('<NoiDung>' + escapeXml(form.f14) + '</NoiDung>');
+  lines.push('<HoSoKemTheo></HoSoKemTheo>');
+  lines.push('<Nhan_BanDientu>1</Nhan_BanDientu>');
+  lines.push('<Nhan_Bangiay>1</Nhan_Bangiay>');
+  lines.push('<DiaChi_Tinh></DiaChi_Tinh>');
+  lines.push('<DiaChi_Huyen></DiaChi_Huyen>');
+  lines.push('<DiaChi_Xa></DiaChi_Xa>');
+  lines.push('</NoiDung>');
+  lines.push('</TK3-TS>');
+  return lines.join('');
+}
+
+/* Hiện cửa sổ thông báo kết quả rõ ràng (thành công / thất bại / cảnh báo / thông tin)
+   thay vì chỉ đổi màu 1 dòng chữ nhỏ ở góc màn hình. */
+function showResultModal(type, title, message) {
+  const overlay = document.getElementById('resultOverlay');
+  const modal = document.getElementById('resultModal');
+  const icon = document.getElementById('resultIcon');
+  const titleEl = document.getElementById('resultTitle');
+  const msgEl = document.getElementById('resultMessage');
+
+  modal.className = 'result-modal ' + type;
+  const icons = { success: '\u2713', error: '\u2715', warning: '!', info: 'i' };
+  icon.textContent = icons[type] || 'i';
+  titleEl.textContent = title;
+  msgEl.textContent = message;
+
+  overlay.classList.add('show');
+}
+
+function closeResultModal() {
+  document.getElementById('resultOverlay').classList.remove('show');
+}
+
+function uploadSignedPdf() {
+  if (!validateRequiredFields()) {
+    showResultModal('warning', 'Thiếu thông tin bắt buộc',
+      'Vui lòng điền đầy đủ các mục bắt buộc (đánh dấu đỏ, có dấu *) trước khi gửi.');
+    return;
+  }
+
+  const statusEl = document.getElementById('uploadStatus');
+  const btn = document.getElementById('uploadBtn');
+  const fileInput = document.getElementById('signedFileInput');
+
+  statusEl.style.color = '#666';
+
+  if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.indexOf('DÁN_URL_') === 0) {
+    statusEl.style.color = '#b30000';
+    statusEl.textContent = 'Chưa cấu hình nơi nhận.';
+    showResultModal('error', 'Chưa cấu hình nơi nhận',
+      'Biến GOOGLE_SCRIPT_URL chưa được cấu hình trong file này.\nLiên hệ bộ phận BHXH phụ trách để cấu hình trước khi gửi.');
+    return;
+  }
+  if (!fileInput.files || fileInput.files.length === 0) {
+    statusEl.style.color = '#b30000';
+    statusEl.textContent = 'Chưa chọn file.';
+    showResultModal('warning', 'Chưa chọn file',
+      'Vui lòng chọn file PDF đã ký số trước khi gửi.');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  btn.disabled = true;
+  btn.textContent = 'Đang kiểm tra...';
+  statusEl.textContent = 'Đang kiểm tra chữ ký số trong file...';
+
+  reader.onload = function () {
+    const arrayBuffer = reader.result;
+
+    if (!hasSignatureMarkers(arrayBuffer)) {
+      btn.disabled = false;
+      btn.textContent = '2. Gửi bản đã ký số cho cơ quan BHXH';
+      statusEl.style.color = '#b30000';
+      statusEl.textContent = '⚠ Không phát hiện chữ ký số.';
+      showResultModal('warning', 'Không phát hiện chữ ký số',
+        'File bạn chọn chưa có chữ ký số. Vui lòng chọn đúng file PDF đã ký số (không phải bản gốc chưa ký) rồi gửi lại.');
+      return;
+    }
+
+    const base64Data = arrayBufferToBase64(arrayBuffer);
+    const formData = collectFormData();
+    const baseName = sanitizeFileName(formData.f01) || 'DonVi';
+    const payload = {
+      fileName: buildSignedFileName(),
+      mimeType: file.type || 'application/pdf',
+      base64Data: base64Data,
+      xmlFileName: 'TK3-TS_' + baseName + '.xml',
+      xmlData: buildFormXml(formData),
+      formData: formData
+    };
+
+    btn.textContent = 'Đang gửi...';
+    statusEl.style.color = '#666';
+    statusEl.textContent = 'Đã phát hiện chữ ký số, đang gửi file PDF và XML...';
+
+    fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        btn.disabled = false;
+        btn.textContent = '2. Gửi bản đã ký số cho cơ quan BHXH';
+        if (data && data.status === 'ok') {
+          const now = new Date().toLocaleString('vi-VN');
+          statusEl.style.color = '#0a8a3d';
+          statusEl.textContent = '✓ Đã gửi thành công lúc ' + now + '.';
+          showResultModal('success', 'Gửi thành công',
+            'Đã gửi thành công file PDF và XML lên hệ thống lúc ' + now + '.\n');
+        } else if (data && data.status === 'no_signature') {
+          statusEl.style.color = '#b30000';
+          statusEl.textContent = '✗ Máy chủ từ chối: chưa có chữ ký số.';
+          showResultModal('error', 'Máy chủ từ chối file',
+            'Máy chủ kiểm tra và xác định file chưa có chữ ký số hợp lệ.\nVui lòng chọn đúng file PDF đã ký số rồi gửi lại.');
+        } else {
+          const reason = (data && data.message) ? data.message : 'Lỗi không xác định.';
+          statusEl.style.color = '#b30000';
+          statusEl.textContent = '✗ Gửi thất bại.';
+          showResultModal('error', 'Gửi thất bại',
+            'Không thể gửi file lên hệ thống.\nChi tiết lỗi: ' + reason);
+        }
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        btn.textContent = '2. Gửi bản đã ký số cho cơ quan BHXH';
+        statusEl.style.color = '#b30000';
+        statusEl.textContent = '✗ Không thể kết nối tới máy chủ.';
+        showResultModal('error', 'Không thể kết nối tới máy chủ',
+          'Vui lòng kiểm tra kết nối Internet rồi thử gửi lại.\nChi tiết lỗi: ' + err.message);
+      });
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+function exportPDF() {
+  if (!validateRequiredFields()) {
+    showResultModal('warning', 'Thiếu thông tin bắt buộc',
+      'Vui lòng điền đầy đủ các mục bắt buộc (đánh dấu đỏ, có dấu *) trước khi xuất PDF.');
+    return;
+  }
+
+  const btn = document.getElementById('exportBtn');
+  btn.disabled = true;
+  btn.textContent = 'Đang xuất PDF...';
+
+  const clone = buildPrintableClone();
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'fixed';
+  wrapper.style.left = '-99999px';
+  wrapper.style.top = '0';
+  wrapper.className = 'tk3-scope';
+  wrapper.style.width = '210mm';
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  window.html2canvas(clone, { scale: 3, backgroundColor: '#ffffff', useCORS: true }).then(function (canvas) {
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const jsPDFCtor = window.jspdf.jsPDF;
+    const pdf = new jsPDFCtor('p', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+    pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    const tenDonVi = sanitizeFileName(document.getElementById('f01').value) || 'DonVi';
+    pdf.save('TK3-TS_' + tenDonVi + '.pdf');
+
+    document.body.removeChild(wrapper);
+    btn.disabled = false;
+    btn.textContent = '1. Xuất PDF';
+    showResultModal('success', 'Xuất PDF thành công',
+      'Đã tạo file "TK3-TS_' + tenDonVi + '.pdf" và tải xuống máy.\nVui lòng ký số vào file này rồi thực hiện Bước 2 để gửi cho cơ quan BHXH.');
+  }).catch(function (err) {
+    document.body.removeChild(wrapper);
+    btn.disabled = false;
+    btn.textContent = '1. Xuất PDF';
+    showResultModal('error', 'Lỗi khi xuất PDF', 'Có lỗi xảy ra khi xuất file PDF.\nChi tiết lỗi: ' + err.message);
+  });
+}
 </script>
 </body>
 </html>
