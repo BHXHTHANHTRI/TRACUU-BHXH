@@ -3,89 +3,103 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BHXH - Tra cứu số liệu &amp; Tờ khai TK3-TS</title>
+<title>BHXH - Tra cứu số liệu &amp; Đổi mã đơn vị</title>
 <style>
-:root{--bg:#eef2f6;--surface:#fff;--ink:#152232;--muted:#5b6b7c;--line:#d9e1ea;--field:#c5d0dc;
---brand:#0f5db0;--brand-dk:#0a4a8f;--brand-tint:#e6f0fb;--ok:#0a8a3d;--ok-dk:#076e30;--ok-tint:#e7f5ec;
---err:#c0392b;--err-dk:#96291e;--err-tint:#fdecea;--warn:#b7791f;--warn-dk:#8f5e18;--warn-tint:#fff6de;--bar:60px}
+:root{--bg:#e9eff6;--surface:#fff;--ink:#12233a;--muted:#5a6b7f;--line:#d6dfea;--field:#c2cfdd;
+--navy:#0a2342;--navy-2:#123a6b;--brand:#1258b8;--brand-dk:#0c4593;--brand-tint:#e4eefb;--gold:#f6b93b;
+--ok:#0a8a3d;--ok-dk:#076e30;--ok-tint:#e6f5ec;--err:#c0392b;--err-dk:#96291e;--err-tint:#fdecea;--warn:#b7791f;--warn-dk:#8f5e18;--warn-tint:#fff6de;--bar:78px;
+--sh:0 1px 2px rgba(10,35,66,.06),0 12px 28px -16px rgba(10,35,66,.3)}
 *{box-sizing:border-box}
 html{scroll-padding-top:calc(var(--bar) + 12px)}
 body{margin:0;font-family:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:14px;line-height:1.5;background:var(--bg);color:var(--ink)}
-.app{max-width:1040px;margin:0 auto;padding:26px 20px 64px}
+.app{max-width:1040px;margin:0 auto;padding:30px 20px 64px}
 
-/* ---- Thanh trên cùng + tab ---- */
-.topbar{position:sticky;top:0;z-index:60;height:var(--bar);background:var(--surface);border-bottom:1px solid var(--line)}
-.topbar-in{max-width:1040px;height:100%;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
-.brand-mark{flex:none;font-weight:800;font-size:15px;letter-spacing:.02em;color:#fff;background:var(--brand);border-radius:8px;padding:6px 9px;line-height:1}
-.brand-name{font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tabs{display:flex;gap:4px;padding:4px;background:var(--bg);border-radius:11px}
-.tab-btn{background:transparent;color:var(--muted);border:0;padding:8px 16px;border-radius:8px;font-weight:600;font-size:13.5px;box-shadow:none}
-.tab-btn:hover{background:rgba(255,255,255,.65);color:var(--ink)}
-.tab-btn.active{background:var(--surface);color:var(--brand);box-shadow:0 1px 3px rgba(21,34,50,.14)}
+/* ---- Thanh trên cùng + tab thư mục ---- */
+.topbar{position:sticky;top:0;z-index:60;height:var(--bar);background:linear-gradient(135deg,var(--navy),var(--navy-2))}
+.topbar-in{max-width:1040px;height:100%;margin:0 auto;padding:0 20px;display:flex;align-items:flex-end;gap:20px}
+.brand{align-self:center;display:flex;align-items:center;gap:10px;min-width:0}
+.brand-mark{flex:none;font-weight:800;font-size:15px;letter-spacing:.03em;color:var(--navy);background:var(--gold);border-radius:8px;padding:7px 10px;line-height:1}
+.brand-name{font-weight:600;color:#dbe8f8;white-space:nowrap}
+.tabs{display:flex;gap:16px;margin-left:auto}
+button.tab-btn{position:relative;display:flex;align-items:center;gap:12px;height:62px;padding:0 24px 0 14px;border-radius:14px 14px 0 0;background:rgba(255,255,255,.08);color:#c6d8ef;text-align:left;font-weight:600;box-shadow:none;transition:background .15s,color .15s}
+button.tab-btn:hover:not(:disabled){background:rgba(255,255,255,.18);color:#fff}
+button.tab-btn.active,button.tab-btn.active:hover:not(:disabled){background:var(--bg);color:var(--navy);box-shadow:inset 0 4px 0 var(--gold)}
+.tab-btn.active::before,.tab-btn.active::after{content:"";position:absolute;bottom:0;width:14px;height:14px;pointer-events:none}
+.tab-btn.active::before{left:-14px;background:radial-gradient(circle at 0 0,transparent 13.5px,var(--bg) 14px)}
+.tab-btn.active::after{right:-14px;background:radial-gradient(circle at 100% 0,transparent 13.5px,var(--bg) 14px)}
+.tab-ico{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.12)}
+.tab-ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tab-btn.active .tab-ico{background:var(--brand);color:#fff}
+.tab-txt{display:flex;flex-direction:column;line-height:1.25}
+.tab-title{font-size:15px;font-weight:700}
+.tab-sub{font-size:12px;font-weight:500;color:#93afd3;margin-top:2px}
+.tab-btn.active .tab-sub{color:var(--muted)}
 .tab-pane[hidden]{display:none!important}
 
 /* ---- Nút ---- */
-button{font:inherit;border:0;border-radius:8px;padding:10px 18px;cursor:pointer;background:var(--brand);color:#fff;font-weight:600;transition:background .15s,box-shadow .15s}
-button:hover:not(:disabled){background:var(--brand-dk)}
-button.secondary{background:var(--surface);color:var(--brand);box-shadow:inset 0 0 0 1px #b4c5da}
+button{font:inherit;border:0;border-radius:10px;padding:10px 20px;cursor:pointer;background:linear-gradient(180deg,#1a68cf,var(--brand));color:#fff;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 6px -1px rgba(18,88,184,.45);transition:background .15s,box-shadow .15s,transform .05s}
+button:hover:not(:disabled){background:linear-gradient(180deg,var(--brand),var(--brand-dk))}
+button:active:not(:disabled){transform:translateY(1px)}
+button.secondary{background:var(--surface);color:var(--brand);box-shadow:inset 0 0 0 1.5px #b4c5da}
 button.secondary:hover:not(:disabled){background:var(--brand-tint)}
-button:disabled{opacity:.5;cursor:not-allowed}
+button:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
 :is(button,input,select,textarea,summary):focus-visible{outline:3px solid #8db8ea;outline-offset:2px}
+.topbar :is(button):focus-visible{outline-color:var(--gold)}
 
 /* ---- Tiêu đề trang ---- */
-.page-head{margin:2px 0 26px}
-h1{margin:0;font-size:26px;line-height:1.25;letter-spacing:-.01em;font-weight:700}
-.sub{color:var(--muted);margin-top:6px;max-width:64ch}
+.page-head{margin:0 0 28px}
+h1{margin:0;font-size:28px;line-height:1.25;letter-spacing:-.015em;font-weight:800;color:var(--navy)}
+.sub{color:var(--muted);margin-top:6px;max-width:66ch;font-size:14.5px}
 
 /* ---- Các bước (có thứ tự thật nên đánh số) ---- */
 .steps{display:flex;flex-direction:column}
-.step{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);gap:0 16px;padding-bottom:18px}
-.step::before{content:"";position:absolute;left:16px;top:40px;bottom:6px;width:2px;background:var(--line);border-radius:2px}
+.step{position:relative;display:grid;grid-template-columns:38px minmax(0,1fr);gap:0 18px;padding-bottom:22px}
+.step::before{content:"";position:absolute;left:18px;top:44px;bottom:4px;width:2px;background:linear-gradient(var(--brand),#b9cfec);border-radius:2px;opacity:.55}
 .step:last-child::before,.step:has(+ #qrPanel:not(.show))::before{display:none}
-.step-num{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 5px var(--bg)}
-.step-body{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
-.step-title{margin:5px 0 16px;font-size:16px;line-height:1.3;font-weight:700}
+.step-num{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#2a7be0,var(--brand-dk));color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 5px var(--bg),0 4px 10px -2px rgba(18,88,184,.5)}
+.step-body{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px;box-shadow:var(--sh)}
+.step-title{margin:6px 0 18px;font-size:17px;line-height:1.3;font-weight:700;color:var(--navy)}
 
 /* ---- Form ---- */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px}
 .form-grid .full{grid-column:1 / -1}
-.form-field label{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:5px}
-.form-field input[type=text],.form-field select,.file{width:100%;padding:10px 12px;border:1px solid var(--field);border-radius:8px;background:var(--surface);font:inherit;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.form-field label{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.form-field input[type=text],.form-field select,.file{width:100%;padding:11px 13px;border:1.5px solid var(--field);border-radius:10px;background:var(--surface);font:inherit;color:var(--ink);transition:border-color .15s,box-shadow .15s}
 .form-field input[type=text]:hover,.form-field select:hover{border-color:#9fb1c6}
-.form-field input[type=text]:focus,.form-field select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px #cfe1f6}
+.form-field input[type=text]:focus,.form-field select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 4px #d3e4f8}
 .form-field input::placeholder{color:#93a1b1}
 .month-year{display:flex;gap:10px}.month-year select{flex:1}
-.file{flex:1;min-width:240px;background:#f7f9fc;padding:8px 10px}
-.file::file-selector-button{font:inherit;font-weight:600;margin-right:10px;border:0;border-radius:6px;padding:6px 12px;background:var(--brand-tint);color:var(--brand);cursor:pointer}
-.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.file{flex:1;min-width:240px;background:#f5f8fc;padding:8px 10px;border-style:dashed}
+.file::file-selector-button{font:inherit;font-weight:600;margin-right:10px;border:0;border-radius:7px;padding:6px 13px;background:var(--brand-tint);color:var(--brand);cursor:pointer}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
 .step-body>.toolbar:first-of-type{margin-top:0}
-.status{padding:10px 13px;background:#f3f6f9;border-radius:8px;margin-top:14px;color:#455a64;font-size:13px}
-.status.note{background:var(--warn-tint);color:#7a5b00;margin-top:0}
-.box{margin-top:14px;border:1px solid var(--line);border-radius:10px;overflow:auto;max-height:520px}
+.status{padding:11px 14px;background:#f1f5fa;border-left:4px solid #9fb6d1;border-radius:4px 10px 10px 4px;margin-top:16px;color:#3f556a;font-size:13px}
+.status.note{background:var(--warn-tint);border-left-color:var(--gold);color:#7a5b00;margin-top:0;margin-bottom:14px}
+.box{margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:520px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:10px 12px;border-bottom:1px solid #e7ecf1;text-align:left;vertical-align:top}
+th,td{padding:11px 13px;border-bottom:1px solid #e7ecf1;text-align:left;vertical-align:top}
 tr:last-child td{border-bottom:0}
-th{background:#f3f6f9;position:sticky;top:0;z-index:1;font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+tbody tr:hover td{background:#f6f9fd}
+th{background:#eef3f9;position:sticky;top:0;z-index:1;font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
 td:first-child{font-weight:600;color:#455a64}
 .warn{color:#c25e00;font-weight:700}
-#loading{position:fixed;right:20px;bottom:20px;background:var(--ink);color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;display:none;z-index:99;box-shadow:0 6px 20px rgba(21,34,50,.3)}
+#loading{position:fixed;right:20px;bottom:20px;background:var(--navy);color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;display:none;z-index:99;box-shadow:0 6px 20px rgba(10,35,66,.35)}
 
 /* ---- Kết quả đối chiếu ---- */
-.identity-result{display:none;border-radius:12px;padding:16px 18px;margin-top:16px;border:1px solid var(--line);background:#f3f6f9}
+.identity-result{display:none;border-radius:14px;padding:16px 18px;margin-top:16px;border:1px solid var(--line);background:#f1f5fa}
 .identity-result.show{display:block}
 .identity-result.success{background:var(--ok-tint);border-color:#a5d6b7}
 .identity-result.error{background:var(--err-tint);border-color:#f1b1a9}
 .identity-result.warning{background:var(--warn-tint);border-color:#ecd28e}
 .identity-result.info{background:var(--brand-tint);border-color:#b4cfee}
 .ir-head{display:flex;gap:10px;align-items:center}
-.ir-icon{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:var(--brand)}
+.ir-icon{flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;background:var(--brand)}
 .identity-result.success .ir-icon{background:var(--ok)}
 .identity-result.error .ir-icon{background:var(--err)}
 .identity-result.warning .ir-icon{background:var(--warn)}
 .ir-title{font-size:15px;font-weight:700}
-.ir-message{font-size:13.5px;color:#3b4b5c;line-height:1.55;margin:4px 0 0 36px}
-.identity-result .kv-list{margin-top:12px;background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.ir-message{font-size:13.5px;color:#3b4b5c;line-height:1.55;margin:4px 0 0 38px}
+.identity-result .kv-list{margin-top:12px;background:var(--surface);border-radius:12px;overflow:hidden;border:1px solid var(--line)}
 .identity-result .kv-item{display:flex;flex-wrap:wrap;gap:2px 18px;padding:10px 14px;border-bottom:1px solid #edf1f5}
 .identity-result .kv-item:last-child{border-bottom:0}
 .identity-result .kv-label{flex:0 0 240px;font-weight:600;color:var(--muted);font-size:13px}
@@ -93,8 +107,8 @@ td:first-child{font-weight:600;color:#455a64}
 
 /* ---- Mã QR ---- */
 #qrPanel{display:none}#qrPanel.show{display:grid}
-.qr-body{display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;align-items:start;margin-top:14px}
-.qr-imgbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:240px}
+.qr-body{display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px;align-items:start;margin-top:16px}
+.qr-imgbox{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:240px;box-shadow:var(--sh)}
 .qr-imgbox img{max-width:100%;border-radius:4px}
 .qr-placeholder{color:#7d8c9b;font-size:12.5px;text-align:center;padding:20px 8px}
 .qr-info .kv-item{display:flex;flex-wrap:wrap;gap:2px 14px;padding:10px 0;border-bottom:1px solid #e7ecf1}
@@ -103,42 +117,43 @@ td:first-child{font-weight:600;color:#455a64}
 .qr-info .kv-value{flex:1 1 160px;font-size:14px;word-break:break-word}
 .qr-info .kv-value.mono{font-family:Consolas,Menlo,monospace;font-size:13.5px}
 
-/* ================= TỜ KHAI TK3-TS ================= */
-#tk3Pane{background:#dde4ec;border-radius:14px;padding:18px 14px 44px;font-family:Arial,Helvetica,sans-serif}
-.tk3-scope .guide{max-width:210mm;margin:0 auto 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
-.tk3-scope .guide-title{cursor:pointer;padding:12px 16px;font-weight:700;font-size:14px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+/* ================= ĐỔI MÃ ĐƠN VỊ (TỜ KHAI TK3-TS) ================= */
+#tk3Pane{background:#d5dfeb;border-radius:18px;padding:18px 14px 44px;font-family:Arial,Helvetica,sans-serif}
+.tk3-scope .guide{max-width:210mm;margin:0 auto 12px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--brand);border-radius:6px 14px 14px 6px;box-shadow:var(--sh)}
+.tk3-scope .guide-title{cursor:pointer;padding:13px 16px;font-weight:700;font-size:14.5px;color:var(--navy);list-style:none;display:flex;justify-content:space-between;align-items:center}
 .tk3-scope .guide-title::-webkit-details-marker{display:none}
-.tk3-scope .guide-title::after{content:"Thu gọn";font-weight:600;font-size:12.5px;color:var(--brand)}
+.tk3-scope .guide-title::after{content:"Thu gọn";font-weight:600;font-size:12.5px;color:var(--brand);background:var(--brand-tint);border-radius:20px;padding:3px 12px}
 .tk3-scope .guide:not([open]) .guide-title::after{content:"Mở rộng"}
 .tk3-scope .guide ol{margin:0;padding:0 16px 14px;list-style:none;counter-reset:g}
-.tk3-scope .guide li{counter-increment:g;position:relative;padding:0 0 0 32px;margin-top:9px;font-size:13px;line-height:1.55;color:#33424f}
-.tk3-scope .guide li::before{content:counter(g);position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;background:var(--brand-tint);color:var(--brand);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.tk3-scope .guide li{counter-increment:g;position:relative;padding:0 0 0 34px;margin-top:10px;font-size:13px;line-height:1.55;color:#33424f}
+.tk3-scope .guide li::before{content:counter(g);position:absolute;left:0;top:0;width:23px;height:23px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
 .tk3-scope .guide li b{color:var(--ink)}
-.tk3-scope .toolbar-wrap{position:sticky;top:var(--bar);z-index:50;background:#dde4ec;padding:8px 0 2px}
-.tk3-scope .tk3-actions{max-width:210mm;margin:0 auto 8px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tk3-scope .tk3-toolbar{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
-.tk3-scope .tk3-toolbar .title{font-weight:700;font-size:14px}
+.tk3-scope .toolbar-wrap{position:sticky;top:var(--bar);z-index:50;background:#d5dfeb;padding:8px 0 2px}
+.tk3-scope .tk3-actions{max-width:210mm;margin:0 auto 8px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tk3-scope .tk3-toolbar{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--brand);border-radius:6px 6px 14px 14px;padding:12px 14px 14px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;box-shadow:var(--sh)}
+.tk3-scope .tk3-toolbar.step2{border-top-color:var(--ok)}
+.tk3-scope .tk3-toolbar .title{font-weight:700;font-size:14.5px;color:var(--navy)}
 .tk3-scope .tk3-toolbar .hint{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.45}
 .tk3-scope .tk3-toolbar .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-#exportBtn,#uploadBtn{padding:10px 18px;font-size:14px;font-weight:700;border-radius:8px;white-space:nowrap;align-self:flex-start}
+#exportBtn,#uploadBtn{padding:10px 18px;font-size:14px;font-weight:700;border-radius:10px;white-space:nowrap;align-self:flex-start}
 #exportBtn:disabled{background:#93a9c9}
-#uploadBtn{background:var(--ok)}#uploadBtn:hover:not(:disabled){background:var(--ok-dk)}#uploadBtn:disabled{background:#8fc4a4}
+#uploadBtn{background:linear-gradient(180deg,#0f9c48,var(--ok));box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 6px -1px rgba(10,138,61,.45)}#uploadBtn:hover:not(:disabled){background:linear-gradient(180deg,var(--ok),var(--ok-dk))}#uploadBtn:disabled{background:#8fc4a4}
 #signedFileInput{font-size:12.5px;max-width:100%;flex:1 1 180px;min-width:0}
 #uploadStatus{max-width:210mm;margin:0 auto;padding:0 2px 4px;font-size:12.5px}
-#resultOverlay{display:none;position:fixed;inset:0;background:rgba(15,30,50,.5);z-index:1000;align-items:center;justify-content:center;padding:16px}
+#resultOverlay{display:none;position:fixed;inset:0;background:rgba(10,30,55,.55);backdrop-filter:blur(2px);z-index:1000;align-items:center;justify-content:center;padding:16px}
 #resultOverlay.show{display:flex}
-.result-modal{background:var(--surface);border-radius:14px;max-width:460px;width:100%;box-shadow:0 18px 50px rgba(15,30,50,.35);overflow:hidden;animation:resultPop .15s ease-out}
-.result-body{display:flex;gap:14px;padding:24px 24px 8px;align-items:flex-start}
-.result-icon{flex:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;line-height:1;background:var(--brand)}
+.result-modal{background:var(--surface);border-radius:18px;max-width:460px;width:100%;box-shadow:0 22px 60px rgba(10,30,55,.4);overflow:hidden;animation:resultPop .15s ease-out}
+.result-body{display:flex;gap:14px;padding:26px 26px 8px;align-items:flex-start}
+.result-icon{flex:none;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;line-height:1;background:var(--brand)}
 .result-modal.success .result-icon{background:var(--ok)}.result-modal.error .result-icon{background:var(--err)}.result-modal.warning .result-icon{background:var(--warn)}
 .result-text{flex:1}
-.result-title{font-size:16px;font-weight:700;margin:4px 0 6px}
+.result-title{font-size:16.5px;font-weight:700;margin:4px 0 6px;color:var(--navy)}
 .result-message{font-size:13.5px;color:#3b4b5c;line-height:1.6;white-space:pre-line}
-.result-actions{padding:14px 24px 22px;text-align:right}
+.result-actions{padding:14px 26px 22px;text-align:right}
 .result-modal.success .result-actions button{background:var(--ok)}.result-modal.success .result-actions button:hover{background:var(--ok-dk)}
 .result-modal.error .result-actions button{background:var(--err)}.result-modal.error .result-actions button:hover{background:var(--err-dk)}
 .result-modal.warning .result-actions button{background:var(--warn)}.result-modal.warning .result-actions button:hover{background:var(--warn-dk)}
-
+ 
 /* --- Tờ giấy tờ khai: giữ nguyên để xuất PDF không đổi --- */
 .tk3-scope .page{width: 210mm; min-height: 297mm; margin: 0 auto; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.25); padding: 18mm 20mm 15mm 20mm; font-family: "Times New Roman", Times, serif; font-size: 13px; line-height: 1.5; color: #000; position: relative;}
 .tk3-scope .form-header-note{position: absolute; top: 12mm; right: 20mm; text-align: center; font-size: 11px; width: 62mm;}
@@ -182,12 +197,13 @@ td:first-child{font-weight:600;color:#455a64}
 .tk3-scope select.dotted-input{border:1px solid var(--field);border-radius:6px;background:#f7f9fc;padding:4px 6px;font-family:"Segoe UI",Arial,sans-serif;font-size:13px}
 
 @keyframes resultPop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
-@media (max-width:860px){.tk3-scope .tk3-actions{grid-template-columns:1fr}.tk3-scope .toolbar-wrap{position:static}}
-@media (max-width:640px){.form-grid,.qr-body{grid-template-columns:1fr}.brand-name{display:none}.step-body{padding:16px}.identity-result .kv-label,.qr-info .kv-label{flex-basis:100%}.ir-message{margin-left:0}}
+@media (max-width:1000px){.brand-name{display:none}}
+@media (max-width:860px){:root{--bar:66px}.brand{display:none}.tabs{width:100%;gap:12px}button.tab-btn{flex:1;min-width:0;height:52px;padding:0 10px}.tab-sub{display:none}.tab-ico{width:30px;height:30px;border-radius:9px}.tab-ico svg{width:17px;height:17px}.tab-title{font-size:13px}.tk3-scope .tk3-actions{grid-template-columns:1fr}.tk3-scope .toolbar-wrap{position:static}}
+@media (max-width:640px){.form-grid,.qr-body{grid-template-columns:1fr}.step-body{padding:16px}.identity-result .kv-label,.qr-info .kv-label{flex-basis:100%}.ir-message{margin-left:0}h1{font-size:23px}}
 @media (max-width:520px){.step{grid-template-columns:28px minmax(0,1fr);gap:0 10px}.step-num{width:28px;height:28px;font-size:13px}.step::before{left:13px;top:34px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{
-  .topbar,#tabLookup,#loading,.tk3-scope .toolbar-wrap,.tk3-scope .guide{display:none!important}
+  .topbar,.page-head,#tabLookup,#loading,.tk3-scope .toolbar-wrap,.tk3-scope .guide{display:none!important}
   body{background:#fff}
   .app{margin:0;padding:0;max-width:none}
   #tk3Pane{background:#fff;padding:0;border-radius:0;overflow:visible}
@@ -199,10 +215,10 @@ td:first-child{font-weight:600;color:#455a64}
 <div id="loading">Đang khởi tạo bộ đọc PDF...</div>
 
 <header class="topbar"><div class="topbar-in">
- <div class="brand"><span class="brand-mark">BHXH</span><span class="brand-name">Tra cứu số liệu &amp; tờ khai</span></div>
- <nav class="tabs">
-  <button type="button" id="tabBtnLookup" class="tab-btn active">Tra cứu số liệu đóng BHXH</button>
-  <button type="button" id="tabBtnTk3" class="tab-btn">Tờ khai TK3-TS</button>
+ <div class="brand"><span class="brand-mark">BHXH CƠ SỞ THANH TRÌ-HÀ NỘI</span><span class="brand-name"></span></div>
+ <nav class="tabs" aria-label="Chức năng">
+  <button type="button" id="tabBtnLookup" class="tab-btn active"><span class="tab-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M8.5 12.5l1.8-2 1.6 1.4 2.1-2.4"/></svg></span><span class="tab-txt"><span class="tab-title">Tra cứu số liệu đóng BHXH</span><span class="tab-sub">Lấy số liệu theo tháng, tạo QR thanh toán</span></span></button>
+  <button type="button" id="tabBtnTk3" class="tab-btn"><span class="tab-ico"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span><span class="tab-txt"><span class="tab-title">Bổ sung thông tin để đổi mã đơn vị</span><span class="tab-sub">Lập tờ khai, ký số và gửi cơ quan BHXH</span></span></button>
  </nav>
 </div></header>
 
@@ -292,6 +308,10 @@ td:first-child{font-weight:600;color:#455a64}
 </div><!-- /#tabLookup -->
 
 <section id="tabTk3" class="tab-pane" hidden>
+<div class="page-head">
+<h1>Bổ sung thông tin để đổi mã đơn vị</h1>
+<div class="sub">Điền tờ khai, xuất PDF để ký số, rồi gửi bản đã ký cho cơ quan BHXH.</div>
+</div>
 <div id="tk3Pane" class="tk3-scope">
 <details class="guide" open>
       <summary class="guide-title">Hướng dẫn thao tác (4 bước)</summary>
@@ -621,7 +641,7 @@ td:first-child{font-weight:600;color:#455a64}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-let pyodide=null, lastSig=null, pyReady=null, lastPdfBytes=null, lastPdfName='';
+let pyodide=null, lastSig=null, pyReady=null, lastPdfBytes=null, lastPdfName='', lastPdfB64=null, lastVerifiedToken='';
 
 function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function rows(obj,target){
@@ -1248,10 +1268,14 @@ async function checkIdentityViaScript() {
     showIdentityResult('warning', 'Chưa có file PDF để tải lên Drive', 'Vui lòng chọn lại file PDF đã ký số ở bước 2 trước khi lấy số liệu.');
     return;
   }
-  const chk = await verifyPdfMatchesStep1(lastPdfBytes, lastPdfName);
-  if (!chk.ok) {
-    showIdentityResult('warning', chk.title, chk.message + ' (Thông tin ở bước 1 có thể đã bị sửa sau khi chọn file.)');
-    return;
+  // Đã kiểm tra khi chọn file; chỉ kiểm tra lại (chậm, qua Pyodide) nếu thông tin bước 1 đã bị sửa.
+  if (makeExportToken(lookup) !== lastVerifiedToken) {
+    const chk = await verifyPdfMatchesStep1(lastPdfBytes, lastPdfName);
+    if (!chk.ok) {
+      showIdentityResult('warning', chk.title, chk.message + ' (Thông tin ở bước 1 có thể đã bị sửa sau khi chọn file.)');
+      return;
+    }
+    lastVerifiedToken = makeExportToken(lookup);
   }
   if (!GOOGLE_SCRIPT_IDENTITY_URL || GOOGLE_SCRIPT_IDENTITY_URL.indexOf('DÁN_URL_') === 0) {
     showIdentityResult('error', 'Chưa cấu hình nơi lấy số liệu',
@@ -1284,11 +1308,13 @@ async function checkIdentityViaScript() {
         ten_cong_ty: lookup.ten_cong_ty || lastSig.ten_cong_ty || '',
         ma_bhxh: lookup.ma_bhxh || '',
         pdf_filename: lastPdfName || ('PhieuDeNghi_' + candidate + '_' + lookup.thang + '-' + lookup.nam + '.pdf'),
-        pdf_base64: bytesToBase64(lastPdfBytes)
+        pdf_base64: lastPdfB64 || (lastPdfB64 = bytesToBase64(lastPdfBytes))
       })
     });
     const data = await res.json();
     btn.disabled = false; btn.textContent = 'Lấy số liệu';
+    if (data && data.timing_ms) console.log('[Thời gian xử lý ở Apps Script, ms]', data.timing_ms);
+    if (data && data.save_token) savePdfInBackground(data.save_token, lastPdfB64, lastPdfName, lookup.ten_cong_ty || lastSig.ten_cong_ty || '');
     if (data && data.status === 'match') {
       let html = '<div>Số liệu căn cứ vào C12 tạm tính của tháng ' + esc(String(lookup.thang)) + '/' + esc(String(lookup.nam)) + '.</div>' + buildMatchTable(data.row, lookup.thang, lookup.nam);
       html += driveUploadNoteHtml(data);
@@ -1319,6 +1345,26 @@ $('checkIdentityBtn').onclick = checkIdentityViaScript;
 
 // Hiển thị (nếu có) CẢNH BÁO khi lưu file PDF lên Google Drive thất bại — không
 // hiển thị thông báo khi lưu thành công (để không làm rối phần kết quả số liệu).
+async function savePdfInBackground(token, b64, filename, tenCongTy) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const res = await fetch(GOOGLE_SCRIPT_IDENTITY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'savePdf', secret: API_SECRET_KEY, save_token: token,
+                               pdf_base64: b64, pdf_filename: filename, ten_cong_ty: tenCongTy })
+      });
+      const d = await res.json();
+      if (d && d.status === 'saved') { console.log('[Lưu Drive] xong:', d.drive_file_url); return; }
+      console.warn('[Lưu Drive] lỗi:', d && d.message);
+    } catch (e) { console.warn('[Lưu Drive] lỗi mạng:', e); }
+  }
+  const box = $('irMessage') || document.body;
+  const note = document.createElement('div');
+  note.style.cssText = 'margin-top:8px;font-size:12.5px;color:#b30000';
+  note.textContent = '⚠ Đã lấy được số liệu nhưng lưu file PDF lên Drive thất bại. Vui lòng bấm "Lấy số liệu" lần nữa để lưu lại.';
+  box.appendChild(note);
+}
 function driveUploadNoteHtml(data) {
   if (data && data.drive_upload_error) {
     return '<div style="margin-top:8px;font-size:12.5px;color:#b30000">⚠ Lấy được số liệu nhưng lưu file PDF lên Drive thất bại: ' + esc(data.drive_upload_error) + '</div>';
@@ -1338,7 +1384,7 @@ $('pdfFile').onchange=async e=>{
   $('pdfStatus').style.color=''; $('pdfStatus').textContent='Đang kiểm tra file...';
   const chk=await verifyPdfMatchesStep1(b,f.name);
   if(!chk.ok){
-   lastSig=null; lastPdfBytes=null; lastPdfName='';
+   lastSig=null; lastPdfBytes=null; lastPdfName=''; lastPdfB64=null; lastVerifiedToken='';
    $('sigList').innerHTML=''; $('qrPanel').classList.remove('show');
    e.target.value='';
    $('pdfStatus').style.color='#b30000';
@@ -1346,7 +1392,7 @@ $('pdfFile').onchange=async e=>{
    return;
   }
   $('pdfStatus').style.color='';
-  lastPdfBytes=b; lastPdfName=f.name;
+  lastPdfBytes=b; lastPdfName=f.name; lastPdfB64=bytesToBase64(b); lastVerifiedToken=makeExportToken(getLookupInfo());
   const sigs=await pyCall('run_pdf',b,f.name);
   showSig(sigs);
   $('pdfStatus').textContent=sigs.length?`Tìm thấy ${sigs.length} chữ ký số.`:'Không tìm thấy trường chữ ký /Sig.';
