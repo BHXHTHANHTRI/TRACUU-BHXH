@@ -55,7 +55,7 @@ h1{margin:0;font-size:28px;line-height:1.25;letter-spacing:-.015em;font-weight:8
 .steps{display:flex;flex-direction:column}
 .step{position:relative;display:grid;grid-template-columns:38px minmax(0,1fr);gap:0 18px;padding-bottom:22px}
 .step::before{content:"";position:absolute;left:18px;top:44px;bottom:4px;width:2px;background:linear-gradient(var(--brand),#b9cfec);border-radius:2px;opacity:.55}
-.step:last-child::before,.step:has(+ #qrPanel:not(.show))::before{display:none}
+.step:last-child::before{display:none}
 .step-num{width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#2a7be0,var(--brand-dk));color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 5px var(--bg),0 4px 10px -2px rgba(18,88,184,.5)}
 .step-body{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 24px;box-shadow:var(--sh)}
 .step-title{margin:6px 0 18px;font-size:17px;line-height:1.3;font-weight:700;color:var(--navy)}
@@ -108,17 +108,6 @@ td:first-child{font-weight:600;color:#455a64}
 .identity-result .kv-label{flex:0 0 240px;font-weight:600;color:var(--muted);font-size:13px}
 .identity-result .kv-value{flex:1 1 160px;min-width:140px;font-size:13.5px;color:var(--ink)}
 
-/* ---- Mã QR ---- */
-#qrPanel{display:none}#qrPanel.show{display:grid}
-.qr-body{display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px;align-items:start;margin-top:16px}
-.qr-imgbox{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px;display:flex;align-items:center;justify-content:center;min-height:240px;box-shadow:var(--sh)}
-.qr-imgbox img{max-width:100%;border-radius:4px}
-.qr-placeholder{color:#7d8c9b;font-size:12.5px;text-align:center;padding:20px 8px}
-.qr-info .kv-item{display:flex;flex-wrap:wrap;gap:2px 14px;padding:10px 0;border-bottom:1px solid #e7ecf1}
-.qr-info .kv-item:first-child{padding-top:0}.qr-info .kv-item:last-child{border-bottom:0}
-.qr-info .kv-label{flex:0 0 170px;font-weight:600;color:var(--muted);font-size:13px}
-.qr-info .kv-value{flex:1 1 160px;font-size:14px;word-break:break-word}
-.qr-info .kv-value.mono{font-family:Consolas,Menlo,monospace;font-size:13.5px}
 
 /* ================= ĐỔI MÃ ĐƠN VỊ (TỜ KHAI TK3-TS) ================= */
 #tk3Pane{background:#d5dfeb;border-radius:18px;padding:18px 14px 44px;font-family:Arial,Helvetica,sans-serif}
@@ -202,7 +191,7 @@ td:first-child{font-weight:600;color:#455a64}
 @keyframes resultPop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 @media (max-width:1000px){.brand-name{display:none}}
 @media (max-width:860px){:root{--bar:66px}.brand{display:none}.tabs{width:100%;gap:12px}button.tab-btn{flex:1;min-width:0;height:52px;padding:0 10px}.tab-sub{display:none}.tab-ico{width:30px;height:30px;border-radius:9px}.tab-ico svg{width:17px;height:17px}.tab-title{font-size:13px}.tk3-scope .tk3-actions{grid-template-columns:1fr}.tk3-scope .toolbar-wrap{position:static}}
-@media (max-width:640px){.form-grid,.qr-body{grid-template-columns:1fr}.step-body{padding:16px}.identity-result .kv-label,.qr-info .kv-label{flex-basis:100%}.ir-message{margin-left:0}h1{font-size:23px}}
+@media (max-width:640px){.form-grid{grid-template-columns:1fr}.step-body{padding:16px}.identity-result .kv-label{flex-basis:100%}.ir-message{margin-left:0}h1{font-size:23px}}
 @media (max-width:520px){.step{grid-template-columns:28px minmax(0,1fr);gap:0 10px}.step-num{width:28px;height:28px;font-size:13px}.step::before{left:13px;top:34px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{
@@ -220,7 +209,7 @@ td:first-child{font-weight:600;color:#455a64}
 <header class="topbar"><div class="topbar-in">
  <div class="brand"><span class="brand-mark">BHXH CƠ SỞ THANH TRÌ-HÀ NỘI</span><span class="brand-name"></span></div>
  <nav class="tabs" aria-label="Chức năng">
-  <button type="button" id="tabBtnLookup" class="tab-btn active"><span class="tab-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M8.5 12.5l1.8-2 1.6 1.4 2.1-2.4"/></svg></span><span class="tab-txt"><span class="tab-title">Tra cứu số liệu đóng BHXH</span><span class="tab-sub">Lấy số liệu theo tháng, tạo QR thanh toán</span></span></button>
+  <button type="button" id="tabBtnLookup" class="tab-btn active"><span class="tab-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M8.5 12.5l1.8-2 1.6 1.4 2.1-2.4"/></svg></span><span class="tab-txt"><span class="tab-title">Tra cứu số liệu đóng BHXH</span><span class="tab-sub">Lấy số liệu theo tháng</span></span></button>
   <button type="button" id="tabBtnTk3" class="tab-btn"><span class="tab-ico"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span><span class="tab-txt"><span class="tab-title">Bổ sung thông tin để đổi mã đơn vị</span><span class="tab-sub">Lập tờ khai, ký số và gửi cơ quan BHXH</span></span></button>
  </nav>
 </div></header>
@@ -287,25 +276,6 @@ td:first-child{font-weight:600;color:#455a64}
   <div class="ir-message" id="irMessage"></div>
 </div>
 
-</div></section>
-
-<section id="qrPanel" class="step"><div class="step-num">4</div><div class="step-body">
- <h2 class="step-title">Tạo mã QR chuyển khoản thanh toán</h2>
- <div class="form-grid">
-  <div class="form-field full">
-   <label for="qrBankSelect">Chọn ngân hàng nhận tiền</label>
-   <select id="qrBankSelect"></select>
-  </div>
- </div>
- <div class="toolbar">
-  <button id="genQrBtn">Tạo mã QR</button>
-  <button id="downloadQrBtn" class="secondary" disabled>Tải ảnh QR</button>
- </div>
- <div class="status" id="qrStatus" style="display:none"></div>
- <div class="qr-body">
-  <div class="qr-imgbox" id="qrImgBox"><div class="qr-placeholder">Chọn ngân hàng rồi bấm "Tạo mã QR" để hiển thị mã QR chuyển khoản tại đây.</div></div>
-  <div class="qr-info" id="qrInfoBox"></div>
- </div>
 </div></section>
 </div><!-- /.steps -->
 </div><!-- /#tabLookup -->
@@ -991,114 +961,6 @@ function buildMatchTable(row, thang, nam) {
   return '<div class="kv-list">' + items + '</div>';
 }
 
-/* ===== Tạo mã QR chuyển khoản thanh toán (chuẩn VietQR - Napas 24/7) =====
-   Ảnh QR được tạo qua dịch vụ công khai img.vietqr.io (không cần khóa API),
-   trình duyệt của người dùng sẽ tự tải ảnh này, công cụ không lưu trữ gì thêm. */
-const BANKS = [
-  { id: 'agribank', ten: 'Ngân hàng Nông nghiệp & Phát triển Nông thôn Việt Nam (Agribank) - CN Thanh Trì', stk: '3180202901155', vietqrCode: 'agribank' },
-  { id: 'vietinbank', ten: 'Ngân hàng TMCP Công thương Việt Nam (VietinBank) - CN Hoàng Mai', stk: '901185000001', vietqrCode: 'vietinbank' }
-];
-
-let lastMatchInfo = null; // { row, thang, nam } của lần tra cứu số liệu thành công gần nhất
-
-(function initBankSelect(){
-  const sel = $('qrBankSelect');
-  BANKS.forEach(b => {
-    const opt = document.createElement('option');
-    opt.value = b.id;
-    opt.textContent = b.ten + ' - STK: ' + b.stk;
-    sel.appendChild(opt);
-  });
-})();
-
-// Lấy số tiền dạng số nguyên (không dấu chấm, không chữ) từ giá trị cột _tien_ck trên Sheet.
-function parseAmountNumber(v) {
-  const n = Number(String(v ?? '').replace(/[^\d]/g, ''));
-  return isNaN(n) ? 0 : n;
-}
-
-// Nội dung chuyển khoản: BHXH 103 00 <Mã đơn vị> 00114 dong BHXH
-// (Chuẩn VietQR/Napas không cho phép ký tự đặc biệt trong nội dung chuyển khoản,
-//  nên dùng khoảng trắng để phân tách thay vì dấu +; không đưa số tiền vào nội dung.)
-function buildPaymentContent(madvi) {
-  return 'BHXH 103 00 ' + String(madvi || '').trim() + ' 00114 dong BHXH';
-}
-
-function showQrPanel(row, thang, nam) {
-  lastMatchInfo = { row, thang, nam };
-  $('qrPanel').classList.add('show');
-  // Mỗi lần có số liệu mới (tra cứu lại) thì xoá QR cũ, chờ người dùng chọn ngân hàng và tạo lại.
-  $('qrImgBox').innerHTML = '<div class="qr-placeholder">Chọn ngân hàng rồi bấm "Tạo mã QR" để hiển thị mã QR chuyển khoản tại đây.</div>';
-  $('qrInfoBox').innerHTML = '';
-  $('qrStatus').style.display = 'none';
-  $('downloadQrBtn').disabled = true;
-}
-
-function generateQr() {
-  const qrStatus = $('qrStatus');
-  qrStatus.style.display = 'none';
-  if (!lastMatchInfo || !lastMatchInfo.row) {
-    qrStatus.style.display = 'block';
-    qrStatus.style.color = '#b30000';
-    qrStatus.textContent = 'Chưa có số liệu để tạo mã QR. Vui lòng bấm "Lấy số liệu" ở bước 3 trước.';
-    return;
-  }
-  const bank = BANKS.find(b => b.id === $('qrBankSelect').value);
-  if (!bank) return;
-  const row = lastMatchInfo.row;
-  const madvi = row.madvi || '';
-  const soTien = parseAmountNumber(row._tien_ck);
-  if (!soTien) {
-    qrStatus.style.display = 'block';
-    qrStatus.style.color = '#b30000';
-    qrStatus.textContent = 'Số tiền còn phải nộp bằng 0 hoặc không hợp lệ, không thể tạo mã QR chuyển khoản.';
-    return;
-  }
-  const content = buildPaymentContent(madvi);
-  const url = 'https://img.vietqr.io/image/' + bank.vietqrCode + '-' + bank.stk + '-compact2.png'
-    + '?amount=' + encodeURIComponent(soTien)
-    + '&addInfo=' + encodeURIComponent(content);
-
-  $('qrImgBox').innerHTML = '<img id="qrImgEl" alt="Mã QR chuyển khoản" src="' + url + '">';
-  const items = [
-    ['Ngân hàng', bank.ten],
-    ['Số tài khoản', bank.stk],
-    ['Số tiền chuyển khoản', formatCurrencyVND(soTien)],
-    ['Nội dung chuyển khoản', content]
-  ];
-  $('qrInfoBox').innerHTML = items.map(function(it){
-    const mono = it[0] === 'Số tài khoản' || it[0] === 'Nội dung chuyển khoản' ? ' mono' : '';
-    return '<div class="kv-item"><div class="kv-label">' + esc(it[0]) + '</div><div class="kv-value' + mono + '">' + esc(it[1]) + '</div></div>';
-  }).join('');
-  $('downloadQrBtn').disabled = false;
-  qrStatus.style.display = 'block';
-  qrStatus.style.color = '#0a8a3d';
-  qrStatus.textContent = 'Đã tạo mã QR. ĐỀ NGHỊ KIỂM TRA KỸ THÔNG TIN VỀ TÊN TÀI KHOẢN VÀ SỐ TÀI KHOẢN THỤ HƯỞNG, NỘI DUNG CHUYỂN KHOẢN TRƯỚC KHI CHUYỂN.';
-}
-$('genQrBtn').onclick = generateQr;
-
-async function downloadQr() {
-  const img = document.getElementById('qrImgEl');
-  if (!img) return;
-  const btn = $('downloadQrBtn');
-  const oldText = btn.textContent;
-  btn.disabled = true; btn.textContent = 'Đang tải...';
-  try {
-    const res = await fetch(img.src);
-    const blob = await res.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'QR_ChuyenKhoan_BHXH.png';
-    document.body.appendChild(a); a.click(); a.remove();
-  } catch (err) {
-    // Nếu bị chặn CORS khi tải ảnh, mở ảnh ở tab mới để người dùng tự lưu.
-    window.open(img.src, '_blank');
-  } finally {
-    btn.disabled = false; btn.textContent = oldText;
-  }
-}
-$('downloadQrBtn').onclick = downloadQr;
-
 /* ===== Mẫu nhập liệu đầu trang: chọn tháng/năm tra cứu + xuất PDF để ký số ===== */
 (function initLookupSelects(){
   const monthSel = $('lookupMonth'), yearSel = $('lookupYear');
@@ -1389,11 +1251,9 @@ async function checkIdentityViaScript() {
       let html = '<div>Số liệu căn cứ vào C12 tạm tính của tháng ' + esc(String(lookup.thang)) + '/' + esc(String(lookup.nam)) + '.</div>' + buildMatchTable(data.row, lookup.thang, lookup.nam);
       html += driveUploadNoteHtml(data);
       showIdentityResult('success', 'Đã lấy số liệu', html, true);
-      showQrPanel(data.row, lookup.thang, lookup.nam);
     } else if (data && data.status === 'no_match') {
       let msg = 'Mã số thuế của đơn vị đang khác với mã số thuế mà cơ quan BHXH cơ sở Thanh Trì đang quản lý, đề nghị liên hệ để kiểm tra lại!';
       showIdentityResult('warning', 'Không tìm thấy số liệu', msg + driveUploadNoteText(data));
-      $('qrPanel').classList.remove('show');
     } else {
       const reason = (data && data.message) ? data.message : 'Lỗi không xác định.';
       const thieuThang = /kh[oô]ng t[iìí]m th[aấ]y sheet/i.test(reason);
@@ -1402,13 +1262,11 @@ async function checkIdentityViaScript() {
       } else {
         showIdentityResult('error', 'Lấy số liệu thất bại', 'Không thể lấy số liệu.\nChi tiết lỗi: ' + reason);
       }
-      $('qrPanel').classList.remove('show');
     }
   } catch (err) {
     btn.disabled = false; btn.textContent = 'Lấy số liệu';
     showIdentityResult('error', 'Không thể kết nối tới máy chủ',
       'Vui lòng kiểm tra kết nối Internet và URL Apps Script rồi thử lại.\nChi tiết lỗi: ' + err.message);
-    $('qrPanel').classList.remove('show');
   }
 }
 $('checkIdentityBtn').onclick = checkIdentityViaScript;
@@ -1455,7 +1313,7 @@ $('pdfFile').onchange=async e=>{
   const chk=await verifyPdfMatchesStep1(b,f.name);
   if(!chk.ok){
    lastSig=null; lastPdfBytes=null; lastPdfName=''; lastPdfB64=null; lastVerifiedToken='';
-   $('sigList').innerHTML=''; $('qrPanel').classList.remove('show');
+   $('sigList').innerHTML='';
    e.target.value='';
    $('pdfStatus').style.color='#b30000';
    $('pdfStatus').textContent=chk.title+'. '+chk.message;
