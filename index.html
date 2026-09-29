@@ -246,6 +246,14 @@ td:first-child{font-weight:600;color:#455a64}
   </div>
   <div class="latest-month" id="latestMonthNote"></div>
  </div>
+ <div class="form-field">
+  <label for="companyPhone">Số điện thoại liên hệ</label>
+  <input id="companyPhone" type="text" inputmode="tel" autocomplete="tel" placeholder="VD: 0912345678">
+ </div>
+ <div class="form-field">
+  <label for="companyEmail">Địa chỉ Email</label>
+  <input id="companyEmail" type="text" inputmode="email" autocomplete="email" placeholder="VD: ketoan@congty.vn">
+ </div>
 </div>
 <div class="toolbar">
 <button id="exportPdfBtn">Xuất PDF để ký số</button>
@@ -574,6 +582,8 @@ td:first-child{font-weight:600;color:#455a64}
   <div style="padding:9px 0;border-bottom:1px solid #ddd"><b>Tên công ty:</b><div style="margin-top:3px" id="pdfCompanyName"></div></div>
   <div style="padding:9px 0;border-bottom:1px solid #ddd"><b>Mã số thuế:</b><div style="margin-top:3px" id="pdfMST"></div></div>
   <div style="padding:9px 0;border-bottom:1px solid #ddd"><b>Mã BHXH của công ty:</b><div style="margin-top:3px" id="pdfBHXH"></div></div>
+  <div style="padding:9px 0;border-bottom:1px solid #ddd"><b>Số điện thoại liên hệ:</b><div style="margin-top:3px" id="pdfPhone"></div></div>
+  <div style="padding:9px 0;border-bottom:1px solid #ddd"><b>Địa chỉ Email:</b><div style="margin-top:3px" id="pdfEmail"></div></div>
   <div style="padding:9px 0;border-bottom:1px solid #ddd"><b>Đơn vị đề nghị tra cứu dữ liệu số tiền đóng của tháng:</b><div style="margin-top:3px" id="pdfThangNam"></div></div>
  </div>
  <div style="margin-top:70px;display:flex;justify-content:flex-end">
@@ -1043,6 +1053,8 @@ function getLookupInfo(){
     ten_cong_ty: $('companyName').value.trim(),
     mst: $('companyMST').value.trim(),
     ma_bhxh: $('companyBHXH').value.trim(),
+    so_dien_thoai: $('companyPhone').value.trim(),
+    email: $('companyEmail').value.trim(),
     thang: $('lookupMonth').value,
     nam: $('lookupYear').value
   };
@@ -1050,7 +1062,7 @@ function getLookupInfo(){
 
 /* ===== Ràng buộc file ở bước 2 với file xuất ở bước 1 =====
    Khi xuất PDF, trình duyệt ghi vào metadata (Keywords) một dấu nhận diện được băm từ
-   Tên công ty + MST + Mã BHXH + Tháng + Năm. Ký số kiểu "incremental" giữ nguyên phần
+   Tên công ty + MST + Mã BHXH + SĐT + Email + Tháng + Năm. Ký số kiểu "incremental" giữ nguyên phần
    gốc của file nên dấu này vẫn còn trong file đã ký. Ở bước 2, chỉ nhận file có dấu khớp
    với thông tin đang nhập ở bước 1. */
 const EXPORT_TAG = 'BHXHTRACUU:v1:';
@@ -1067,15 +1079,23 @@ function hash53(str, seed) {
 }
 function makeExportToken(info) {
   const norm = x => String(x == null ? '' : x).normalize('NFC').trim().replace(/\s+/g, ' ').toLowerCase();
-  const s = 'BHXH-TRACUU-v1|' + [info.ten_cong_ty, info.mst, info.ma_bhxh, info.thang, info.nam].map(norm).join('|');
+  const s = 'BHXH-TRACUU-v2|' + [info.ten_cong_ty, info.mst, info.ma_bhxh, info.so_dien_thoai, info.email, info.thang, info.nam].map(norm).join('|');
   return hash53(s, 1).toString(16).padStart(14, '0') + hash53(s, 2).toString(16).padStart(14, '0');
 }
+// Kiểm tra số điện thoại (VN) và email; trả về chuỗi lỗi hoặc '' nếu hợp lệ.
+function validateContact(info) {
+  if (!info.so_dien_thoai || !info.email) return 'Vui lòng nhập Số điện thoại liên hệ và Địa chỉ Email.';
+  if (!/^(\+?84|0)\d{8,10}$/.test(info.so_dien_thoai.replace(/[\s.\-()]/g, ''))) return 'Số điện thoại liên hệ chưa hợp lệ (VD: 0912345678).';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) return 'Địa chỉ Email chưa hợp lệ (VD: ketoan@congty.vn).';
+  return '';
+}
+
 // Trả về {ok:true} hoặc {ok:false, title, message}
 async function verifyPdfMatchesStep1(bytes, name) {
   const info = getLookupInfo();
-  if (!info.ten_cong_ty || !info.mst || !info.ma_bhxh) {
+  if (!info.ten_cong_ty || !info.mst || !info.ma_bhxh || !info.so_dien_thoai || !info.email) {
     return { ok: false, title: 'Chưa có thông tin ở bước 1',
-      message: 'Hãy nhập lại Tên công ty, Mã số thuế, Mã BHXH và chọn tháng/năm giống lúc xuất PDF, rồi chọn lại file đã ký.' };
+      message: 'Hãy nhập lại Tên công ty, Mã số thuế, Mã BHXH, Số điện thoại, Email và chọn tháng/năm giống lúc xuất PDF, rồi chọn lại file đã ký.' };
   }
   const found = await pyCall('find_export_tags', bytes, name || '');
   console.log('[Kiểm tra file bước 2] dấu nhận diện tìm thấy:', found);
@@ -1085,7 +1105,7 @@ async function verifyPdfMatchesStep1(bytes, name) {
   }
   if (found.indexOf(makeExportToken(info)) < 0) {
     return { ok: false, title: 'File không khớp thông tin ở bước 1',
-      message: 'File này được xuất với Tên công ty, MST, Mã BHXH hoặc tháng/năm khác với thông tin đang nhập ở bước 1. Hãy sửa lại thông tin cho khớp hoặc chọn đúng file.' };
+      message: 'File này được xuất với Tên công ty, MST, Mã BHXH, Số điện thoại, Email hoặc tháng/năm khác với thông tin đang nhập ở bước 1. Hãy sửa lại thông tin cho khớp hoặc chọn đúng file.' };
   }
   return { ok: true };
 }
@@ -1098,9 +1118,17 @@ async function exportPdfForm(){
     statusEl.textContent = 'Vui lòng nhập đầy đủ Tên công ty, Mã số thuế và Mã BHXH trước khi xuất PDF.';
     return;
   }
+  const contactErr = validateContact(info);
+  if (contactErr) {
+    statusEl.style.color = '#b30000';
+    statusEl.textContent = contactErr;
+    return;
+  }
   $('pdfCompanyName').textContent = info.ten_cong_ty;
   $('pdfMST').textContent = info.mst;
   $('pdfBHXH').textContent = info.ma_bhxh;
+  $('pdfPhone').textContent = info.so_dien_thoai;
+  $('pdfEmail').textContent = info.email;
   $('pdfThangNam').textContent = 'Tháng ' + info.thang + '/' + info.nam;
 
   const btn = $('exportPdfBtn');
