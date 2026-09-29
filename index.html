@@ -259,10 +259,6 @@ td:first-child{font-weight:600;color:#455a64}
 <input id="pdfFile" class="file" type="file" accept=".pdf">
 </div>
 <div class="status" id="pdfStatus">Chưa chọn PDF. Chỉ nhận file đã xuất ở bước 1 và đã ký số.</div>
-<div class="box">
-<table><thead><tr><th>STT</th><th>Tên trường ký</th><th>Người ký</th><th>Công ty</th><th>Mã số thuế</th><th>Thời điểm ký</th><th>Sửa đổi sau ký?</th></tr></thead>
-<tbody id="sigList"></tbody></table>
-</div>
 </div></section>
 
 <section id="sheetPanel" class="step"><div class="step-num">3</div><div class="step-body">
@@ -883,14 +879,9 @@ function showDetail(x){
 }
 
 function showSig(sigs){
- $('sigList').innerHTML='';
+ // Không hiển thị bảng thông tin chữ ký — chỉ ghi log khi thiếu MST và lưu chữ ký đầu tiên để dùng cho bước tra cứu.
  sigs.forEach(x=>{
   if(!x.ma_so_thue) console.log('Không đọc được MST — toàn bộ trường Subject của chứng thư:', x._raw_subject);
- });
- sigs.forEach((x,i)=>{
-  const tr=document.createElement('tr');
-  tr.innerHTML=`<td>${i+1}</td><td>${esc(x.sig_field_name)}</td><td>${esc(x.ten_chu_the||x.signer_name_field)}</td><td>${esc(x.ten_cong_ty)}</td><td>${esc(x.ma_so_thue)}</td><td>${esc(x.signing_time)}</td><td>${x.sua_doi_sau_khi_ky?'<span class="warn">CÓ</span>':'Không'}</td>`;
-  tr.onclick=()=>showDetail(x);$('sigList').appendChild(tr);
  });
  if(sigs[0])showDetail(sigs[0]);
 }
@@ -1313,7 +1304,6 @@ $('pdfFile').onchange=async e=>{
   const chk=await verifyPdfMatchesStep1(b,f.name);
   if(!chk.ok){
    lastSig=null; lastPdfBytes=null; lastPdfName=''; lastPdfB64=null; lastVerifiedToken='';
-   $('sigList').innerHTML='';
    e.target.value='';
    $('pdfStatus').style.color='#b30000';
    $('pdfStatus').textContent=chk.title+'. '+chk.message;
