@@ -1102,25 +1102,49 @@ $('downloadQrBtn').onclick = downloadQr;
 /* ===== Mẫu nhập liệu đầu trang: chọn tháng/năm tra cứu + xuất PDF để ký số ===== */
 (function initLookupSelects(){
   const monthSel = $('lookupMonth'), yearSel = $('lookupYear');
-  for (let m = 1; m <= 12; m++) {
+  const addOpt = (sel, value, text) => {
     const opt = document.createElement('option');
-    opt.value = String(m); opt.textContent = 'Tháng ' + m;
-    monthSel.appendChild(opt);
-  }
+    opt.value = String(value); opt.textContent = text;
+    sel.appendChild(opt);
+  };
+
+  /* Danh sách dự phòng (dùng khi chưa/không lấy được dữ liệu từ Google Sheet): đủ 12 tháng, 6 năm. */
   const now = new Date();
   const curYear = now.getFullYear();
-  for (let y = curYear + 1; y >= curYear - 4; y--) {
-    const opt = document.createElement('option');
-    opt.value = String(y); opt.textContent = 'Năm ' + y;
-    yearSel.appendChild(opt);
+  function fillFallback() {
+    monthSel.innerHTML = ''; yearSel.innerHTML = '';
+    for (let m = 1; m <= 12; m++) addOpt(monthSel, m, 'Tháng ' + m);
+    for (let y = curYear + 1; y >= curYear - 4; y--) addOpt(yearSel, y, 'Năm ' + y);
+    monthSel.value = String(now.getMonth() + 1);
+    yearSel.value = String(curYear);
   }
-  monthSel.value = String(now.getMonth() + 1);
-  yearSel.value = String(curYear);
+  fillFallback();
 
-  /* Thông báo tháng dữ liệu mới nhất: hỏi Apps Script, đọc tên các sheet dạng "MM.YYYY"
-     (VD: 08.2026) trên Google Sheet và lấy tháng lớn nhất đang có dữ liệu. */
+  /* Chỉ hiện những năm/tháng THỰC SỰ có dữ liệu trên Google Sheet (tab "MM.YYYY"). */
   let latest = null;          // { thang, nam } hoặc null nếu chưa biết
   let latestState = 'loading'; // loading | ok | error
+  let monthsByYear = null;     // { 2026: [1,2,...,8], ... }
+
+  function fillMonths(year, preferred) {
+    const list = (monthsByYear && monthsByYear[year]) || [];
+    monthSel.innerHTML = '';
+    list.forEach(m => addOpt(monthSel, m, 'Tháng ' + m));
+    if (list.length) monthSel.value = String(list.indexOf(Number(preferred)) >= 0 ? preferred : list[list.length - 1]);
+  }
+  function applyAvailableMonths(months) {
+    monthsByYear = {};
+    months.forEach(x => { (monthsByYear[x.nam] = monthsByYear[x.nam] || []).push(x.thang); });
+    Object.keys(monthsByYear).forEach(y => monthsByYear[y].sort((a, b) => a - b));
+    const years = Object.keys(monthsByYear).map(Number).sort((a, b) => b - a);
+    yearSel.innerHTML = '';
+    years.forEach(y => addOpt(yearSel, y, 'Năm ' + y));
+    yearSel.value = String(latest.nam);          // mặc định: tháng mới nhất
+    fillMonths(latest.nam, latest.thang);
+  }
+  yearSel.addEventListener('change', () => {
+    if (monthsByYear) fillMonths(Number(yearSel.value), monthSel.value);
+  });
+
   const noteEl = $('latestMonthNote');
   function refreshLatestNote() {
     if (latestState === 'ok' && latest) {
@@ -1144,12 +1168,17 @@ $('downloadQrBtn').onclick = downloadQr;
       const t = Number(data && data.thang), n = Number(data && data.nam);
       if (data && data.status === 'ok' && t >= 1 && t <= 12 && n > 2000) {
         latest = { thang: t, nam: n }; latestState = 'ok';
+        const months = Array.isArray(data.months)
+          ? data.months.map(x => ({ thang: Number(x.thang), nam: Number(x.nam) }))
+              .filter(x => x.thang >= 1 && x.thang <= 12 && x.nam > 2000)
+          : [];
+        if (months.length) applyAvailableMonths(months);
       } else {
         throw new Error((data && data.message) || 'bad response');
       }
     } catch (err) {
       console.warn('[Tháng dữ liệu mới nhất]', err);
-      latest = null; latestState = 'error';
+      latest = null; latestState = 'error'; // giữ danh sách dự phòng để vẫn dùng được
     }
     refreshLatestNote();
   }
