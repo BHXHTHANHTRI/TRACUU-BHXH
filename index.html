@@ -187,6 +187,9 @@ td:first-child{font-weight:600;color:#455a64}
 .tk3-scope .dotted-input:not(.invalid):hover{background:#f1f7fe}
 .tk3-scope .dotted-input:focus{outline:none;border-bottom:1px solid var(--brand);background:#e8f1fc}
 .tk3-scope select.dotted-input{border:1px solid var(--field);border-radius:6px;background:#f7f9fc;padding:4px 6px;font-family:"Segoe UI",Arial,sans-serif;font-size:13px}
+/* Ô chọn ngành nghề [10]: tên ngành rất dài nên trước đây select tự giãn theo nội dung và tràn ra ngoài trang.
+   Ép nó luôn nằm trong bề rộng trang (chiếm cả dòng), chữ dài thì cắt bằng dấu "…". */
+.tk3-scope .field-line select.dotted-input.grow{flex:1 1 100%;width:100%;min-width:0;max-width:100%;box-sizing:border-box;text-overflow:ellipsis;overflow:hidden}
 
 @keyframes resultPop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 @media (max-width:1000px){.brand-name{display:none}}
