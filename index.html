@@ -618,7 +618,7 @@ td:first-child{font-weight:600;color:#455a64}
 <script>
 const $ = id => document.getElementById(id);
 let lastPdfBytes = null, lastPdfB64 = null;
-const EXPORT_TAG = 'BHXHTRACUU:v2:';
+const EXPORT_TAG = 'BHXHTRACUU:v3:';
 /* URL Web App tra cứu số liệu (Google Sheet dữ liệu BHXH) */
 const GOOGLE_SCRIPT_IDENTITY_URL = 'https://script.google.com/macros/s/AKfycbxSrty_BSt_hyNl0UtEfGt9DI1jUeqoDF9ek1tmdrGA746mlJKS0_A0i21Xw09l4T9D/exec';
 
@@ -790,18 +790,16 @@ async function exportPdfForm(){
     statusEl.textContent = contactErr;
     return;
   }
-  statusEl.style.color = '#455a64';
-  statusEl.textContent = 'Đang lấy mã phiếu từ máy chủ...';
-  let nonce;
-  try {
-    const r = await callApi({ action: 'issueNonce', mst: info.mst, thang: Number(info.thang), nam: Number(info.nam) });
-    if (r.status !== 'ok') throw new Error(r.message || 'Không lấy được mã phiếu.');
-    nonce = r.nonce;
-  } catch (err) {
+  const mstClean = info.mst.replace(/[\s-]/g, '');
+  if (!/^\d{10}(\d{3})?$/.test(mstClean)) {
     statusEl.style.color = '#b30000';
-    statusEl.textContent = 'Không thể xuất PDF: ' + err.message;
+    statusEl.textContent = 'Mã số thuế chưa hợp lệ (10 hoặc 13 chữ số, VD: 0100916491).';
     return;
   }
+  // Thông tin phiếu gắn vào vùng được ký (máy chủ sẽ đối chiếu với chữ ký số và tháng tra cứu)
+  const payloadJson = JSON.stringify({ v: 3, m: mstClean, n: info.ten_cong_ty, t: Number(info.thang), y: Number(info.nam) });
+  const payloadB64 = btoa(unescape(encodeURIComponent(payloadJson))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const nonce = payloadB64; // giữ tên biến cũ cho đoạn tạo PDF bên dưới
   $('pdfCompanyName').textContent = info.ten_cong_ty;
   $('pdfMST').textContent = info.mst;
   $('pdfBHXH').textContent = info.ma_bhxh;
@@ -862,7 +860,7 @@ async function checkIdentityViaScript() {
   const btn = $('checkIdentityBtn');
   btn.disabled = true; btn.textContent = 'Đang tải số liệu. Vui lòng chờ một chút...';
   try {
-    const data = await callApi({ action: 'checkMST', pdf_base64: lastPdfB64 });
+    const data = await callApi({ action: 'checkMST', pdf_base64: lastPdfB64, thang: Number($('lookupMonth').value), nam: Number($('lookupYear').value) });
     if (data.save_token) savePdfInBackground(data.save_token, lastPdfB64);
     if (data.status === 'match') {
       const html = '<div>Số liệu căn cứ vào C12 tạm tính của tháng ' + esc(String(data.thang)) + '/' + esc(String(data.nam)) + '.</div>' + buildMatchTable(data.row, data.thang, data.nam);
