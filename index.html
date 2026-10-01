@@ -901,8 +901,7 @@ $('pdfFile').onchange = async e => {
   if (!f) return;
   try {
     const bytes = new Uint8Array(await f.arrayBuffer()), text = pdfText(bytes);
-    const bad = !text.includes(EXPORT_TAG) ? 'Không phải file xuất từ bước 1 (hoặc là phiếu cũ). Hãy chọn đúng file "PhieuTraCuu_...pdf" đã ký số.'
-      : !text.includes('/ByteRange') ? 'Không tìm thấy chữ ký số trong file. Hãy chọn file đã ký số.' : '';
+    const bad = !text.includes('/ByteRange') ? 'Không tìm thấy chữ ký số trong file. Hãy chọn file PDF đã ký số (không phải bản gốc chưa ký).' : '';
     if (bad) { e.target.value = ''; st.style.color = '#b30000'; st.textContent = bad; return; }
     lastPdfBytes = bytes; lastPdfB64 = bytesToBase64(bytes);
     st.style.color = ''; st.textContent = 'Đã chọn file đã ký. Bấm "Lấy số liệu" ở bước 3.';
