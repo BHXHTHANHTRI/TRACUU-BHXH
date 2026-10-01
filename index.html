@@ -43,8 +43,6 @@ button.tab-btn.active,button.tab-btn.active:hover:not(:disabled){background:var(
 button{font:inherit;border:0;border-radius:10px;padding:10px 20px;cursor:pointer;background:linear-gradient(180deg,#1a68cf,var(--brand));color:#fff;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 6px -1px rgba(18,88,184,.45);transition:background .15s,box-shadow .15s,transform .05s}
 button:hover:not(:disabled){background:linear-gradient(180deg,var(--brand),var(--brand-dk))}
 button:active:not(:disabled){transform:translateY(1px)}
-button.secondary{background:var(--surface);color:var(--brand);box-shadow:inset 0 0 0 1.5px #b4c5da}
-button.secondary:hover:not(:disabled){background:var(--brand-tint)}
 button:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
 :is(button,input,select,textarea,summary):focus-visible{outline:3px solid #8db8ea;outline-offset:2px}
 .topbar :is(button):focus-visible{outline-color:var(--gold)}
@@ -65,7 +63,6 @@ h1{margin:0;font-size:28px;line-height:1.25;letter-spacing:-.015em;font-weight:8
 
 /* ---- Form ---- */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px}
-.form-grid .full{grid-column:1 / -1}
 .form-field label{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px}
 .form-field input[type=text],.form-field select,.file{width:100%;padding:11px 13px;border:1.5px solid var(--field);border-radius:10px;background:var(--surface);font:inherit;color:var(--ink);transition:border-color .15s,box-shadow .15s}
 .form-field input[type=text]:hover,.form-field select:hover{border-color:#9fb1c6}
@@ -74,7 +71,6 @@ h1{margin:0;font-size:28px;line-height:1.25;letter-spacing:-.015em;font-weight:8
 .month-year{display:flex;gap:10px}.month-year select{flex:1}
 .latest-month{margin-top:8px;font-size:12.5px;line-height:1.45;color:var(--ok-dk);background:var(--ok-tint);border-left:3px solid var(--ok);border-radius:6px;padding:6px 10px}
 .latest-month b{font-weight:700}
-.latest-month.warn{color:var(--warn-dk);background:var(--warn-tint);border-left-color:var(--gold)}
 .file{flex:1;min-width:240px;background:#f5f8fc;padding:8px 10px;border-style:dashed}
 .file::file-selector-button{font:inherit;font-weight:600;margin-right:10px;border:0;border-radius:7px;padding:6px 13px;background:var(--brand-tint);color:var(--brand);cursor:pointer}
 .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
@@ -88,7 +84,6 @@ tr:last-child td{border-bottom:0}
 tbody tr:hover td{background:#f6f9fd}
 th{background:#eef3f9;position:sticky;top:0;z-index:1;font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
 td:first-child{font-weight:600;color:#455a64}
-.warn{color:#c25e00;font-weight:700}
 
 /* ---- Kết quả đối chiếu ---- */
 .identity-result{display:none;border-radius:14px;padding:16px 18px;margin-top:16px;border:1px solid var(--line);background:#f1f5fa}
@@ -227,7 +222,7 @@ td:first-child{font-weight:600;color:#455a64}
 
 <div class="steps">
 
-<section id="infoForm" class="step"><div class="step-num">1</div><div class="step-body">
+<section class="step"><div class="step-num">1</div><div class="step-body">
 <h2 class="step-title">Nhập thông tin và xuất PDF để ký số</h2>
 <div class="form-grid">
  <div class="form-field">
@@ -265,7 +260,7 @@ td:first-child{font-weight:600;color:#455a64}
 <div class="status" id="formStatus">Điền đầy đủ thông tin rồi bấm "Xuất PDF để ký số". Sau khi ký số file PDF vừa tải về, hãy chọn lại file PDF đã ký ở bước 2 bên dưới.</div>
 </div></section>
 
-<section id="pdf1" class="step"><div class="step-num">2</div><div class="step-body">
+<section class="step"><div class="step-num">2</div><div class="step-body">
 <h2 class="step-title">Chọn file PDF đã ký số</h2>
 <div class="toolbar">
 <input id="pdfFile" class="file" type="file" accept=".pdf">
@@ -273,7 +268,7 @@ td:first-child{font-weight:600;color:#455a64}
 <div class="status" id="pdfStatus">Chưa chọn PDF. Chỉ nhận file đã xuất ở bước 1 và đã ký số.</div>
 </div></section>
 
-<section id="sheetPanel" class="step"><div class="step-num">3</div><div class="step-body">
+<section class="step"><div class="step-num">3</div><div class="step-body">
 <h2 class="step-title">Tra cứu số tiền còn phải nộp</h2>
 <div class="toolbar">
 <button id="checkIdentityBtn">Lấy số liệu</button>
@@ -624,6 +619,7 @@ td:first-child{font-weight:600;color:#455a64}
 const $ = id => document.getElementById(id);
 let lastPdfBytes = null, lastPdfB64 = null;
 const EXPORT_TAG = 'BHXHTRACUU:v2:';
+/* URL Web App tra cứu số liệu (Google Sheet dữ liệu BHXH) */
 const GOOGLE_SCRIPT_IDENTITY_URL = 'https://script.google.com/macros/s/AKfycbxSrty_BSt_hyNl0UtEfGt9DI1jUeqoDF9ek1tmdrGA746mlJKS0_A0i21Xw09l4T9D/exec';
 
 function callApi(payload) {
@@ -1035,10 +1031,7 @@ function sanitizeFileName(s) {
   return (s || '').trim().replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '_');
 }
 
-/* ===== CẤU HÌNH GỬI GOOGLE DRIVE =====
-   Dán URL Web App của Google Apps Script (xem file Code.gs) vào đây trước khi
-   gửi file này cho các đơn vị ngoài ngành. Dạng URL:
-   https://script.google.com/macros/s/XXXXXXXXXXXX/exec */
+/* URL Web App gửi tờ khai TK3-TS (Google Sheet tờ khai) */
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbFRCVqyUC0rzO51ttKfHfJ2ZMN1pyBgMnlG__218kwxJDHgGfRzlk36lMGuTO0G9Z/exec';
 
 function buildSignedFileName() {
