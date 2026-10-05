@@ -791,11 +791,7 @@ async function exportPdfForm(){
     return;
   }
   const mstClean = info.mst.replace(/[\s-]/g, '');
-  if (!/^\d{10}(\d{3})?$/.test(mstClean)) {
-    statusEl.style.color = '#b30000';
-    statusEl.textContent = 'Mã số thuế chưa hợp lệ (10 hoặc 13 chữ số, VD: 0100916491).';
-    return;
-  }
+  // Đã bỏ kiểm tra số ký tự của mã số thuế (chấp nhận mọi độ dài, vd. MST 12 số của hộ kinh doanh)
   // Thông tin phiếu gắn vào vùng được ký (máy chủ sẽ đối chiếu với chữ ký số và tháng tra cứu)
   const payloadJson = JSON.stringify({ v: 3, m: mstClean, n: info.ten_cong_ty, t: Number(info.thang), y: Number(info.nam) });
   const payloadB64 = btoa(unescape(encodeURIComponent(payloadJson))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
