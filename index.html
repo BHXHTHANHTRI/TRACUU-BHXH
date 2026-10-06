@@ -663,7 +663,7 @@ function buildMatchTable(row, thang, nam) {
     let label = f[0];
     let val = (row && row[key] !== undefined && row[key] !== null) ? row[key] : '';
     if (key === '_tien_ck') {
-      label = 'Số tiền còn phải nộp tạm tính đến hết tháng ' + thang + '/' + nam + ' là:';
+      label = 'Số tiền còn phải nộp tạm tính đến hết tháng ' + thang + '/' + nam + ' là (Số âm là số tiền đang thừa):';
       val = formatCurrencyVND(val);
     }
     return '<div class="kv-item"><div class="kv-label">' + esc(label) + '</div><div class="kv-value">' + esc(val) + '</div></div>';
