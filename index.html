@@ -1176,12 +1176,22 @@ async function checkSubmitStatus() {
   }
 }
 
-function uploadSignedPdf() {
-  if (!validateRequiredFields()) {
-    showResultModal('warning', 'Thiếu thông tin bắt buộc',
-      'Vui lòng điền đầy đủ các mục bắt buộc (đánh dấu đỏ, có dấu *) trước khi gửi.');
-    return;
+/** Đọc dữ liệu tờ khai từ file đã ký để hiển thị xác nhận. Trả về null nếu không đọc được (máy chủ vẫn kiểm tra lại). */
+function tk3PreviewFromPdf(arrayBuffer) {
+  const text = new TextDecoder('iso-8859-1').decode(arrayBuffer);
+  const m = /BHXHTK3:v1:([A-Za-z0-9_-]{16,20000})/.exec(text);
+  if (!m) return null;
+  try {
+    let s = m[1].replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    const o = JSON.parse(decodeURIComponent(escape(atob(s))));
+    return (o && o.v === 1) ? o : null;
+  } catch (err) {
+    return null;
   }
+}
+
+function uploadSignedPdf() {
 
   const statusEl = document.getElementById('uploadStatus');
   const btn = document.getElementById('uploadBtn');
@@ -1224,16 +1234,26 @@ function uploadSignedPdf() {
       return;
     }
 
-    const base64Data = arrayBufferToBase64(arrayBuffer);
-    const formData = collectFormData();
-    const baseName = sanitizeFileName(formData.f01) || 'DonVi';
+    const info = tk3PreviewFromPdf(arrayBuffer);
+    let confirmMsg = 'Gửi file PDF đã ký này lên cơ quan BHXH?';
+    if (info) {
+      confirmMsg = 'Sẽ gửi tờ khai (theo nội dung đã ký trong file):\n' +
+        '- Tên đơn vị: ' + (info.f01 || '') + '\n' +
+        '- Mã số thuế: ' + (info.f02 || '') + '\n' +
+        '- Mã đơn vị: ' + (info.ma_don_vi || '') + '\n\n' +
+        'Chỉ gửi 1 lần. Bạn có chắc chắn gửi không?';
+    }
+    if (!window.confirm(confirmMsg)) {
+      btn.disabled = false;
+      btn.textContent = '2. Gửi bản đã ký số cho cơ quan BHXH';
+      statusEl.style.color = '#666';
+      statusEl.textContent = 'Đã hủy gửi.';
+      return;
+    }
+
     const payload = {
-      fileName: buildSignedFileName(),
       mimeType: file.type || 'application/pdf',
-      base64Data: base64Data,
-      xmlFileName: 'TK3-TS_' + baseName + '.xml',
-      xmlData: buildFormXml(formData),
-      formData: formData
+      base64Data: arrayBufferToBase64(arrayBuffer)
     };
 
     btn.textContent = 'Đang gửi...';
