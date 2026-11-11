@@ -1273,11 +1273,11 @@ function uploadSignedPdf() {
           const now = new Date().toLocaleString('vi-VN');
           statusEl.style.color = '#0a8a3d';
           statusEl.textContent = '✓ Đã gửi thành công lúc ' + now + '.';
-          btn.disabled = true; btn.textContent = 'Đã gửi thành công';
+          fileInput.value = ''; // xóa file vừa gửi để chọn file đơn vị khác, không cần tải lại trang
           showResultModal('success', 'Gửi thành công',
             'Đã gửi thành công file PDF và XML lên hệ thống lúc ' + now + '.\n');
         } else if (data && data.status === 'duplicate') {
-          btn.disabled = true; btn.textContent = 'Đã gửi trước đó';
+          fileInput.value = ''; // đơn vị này đã gửi; chọn file khác để tiếp tục
           statusEl.style.color = '#b30000';
           statusEl.textContent = '✗ Đơn vị đã gửi tờ khai, không gửi trùng.';
           showResultModal('warning', 'Đã gửi tờ khai trước đó', data.message);
