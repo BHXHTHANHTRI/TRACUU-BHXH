@@ -1018,6 +1018,13 @@ function sanitizeFileName(s) {
 /* URL Web App gửi tờ khai TK3-TS (Google Sheet tờ khai) */
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzbFRCVqyUC0rzO51ttKfHfJ2ZMN1pyBgMnlG__218kwxJDHgGfRzlk36lMGuTO0G9Z/exec';
 
+const TK3_TAG = 'BHXHTK3:v1:';
+// Dữ liệu tờ khai được ghi vào PDF dưới dạng chữ vô hình, để máy chủ đọc từ vùng đã ký.
+function buildTk3Payload() {
+  const json = JSON.stringify(Object.assign({ v: 1 }, collectFormData()));
+  return btoa(unescape(encodeURIComponent(json))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 function buildSignedFileName() {
   const ten = sanitizeFileName(document.getElementById('f01').value) || 'DonVi';
   const now = new Date();
@@ -1312,6 +1319,8 @@ function exportPDF() {
     let heightLeft = imgHeight;
     let position = 0;
     pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, imgHeight);
+    pdf.setFontSize(2); pdf.setTextColor(255, 255, 255);
+    pdf.text(TK3_TAG + buildTk3Payload(), 10, 10, { renderingMode: 'invisible' });
     heightLeft -= pageHeight;
     while (heightLeft > 0) {
       position = heightLeft - imgHeight;
