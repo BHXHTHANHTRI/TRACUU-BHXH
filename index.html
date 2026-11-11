@@ -188,6 +188,15 @@ td:first-child{font-weight:600;color:#455a64}
    Ép nó luôn nằm trong bề rộng trang (chiếm cả dòng), chữ dài thì cắt bằng dấu "…". */
 .tk3-scope .field-line select.dotted-input.grow{flex:1 1 100%;width:100%;min-width:0;max-width:100%;box-sizing:border-box;text-overflow:ellipsis;overflow:hidden}
 
+.tk3-scope .status-card{max-width:210mm;margin:0 auto 12px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--warn);border-radius:6px 14px 14px 6px;box-shadow:var(--sh);padding:12px 14px}
+.tk3-scope .status-card .title{font-weight:700;font-size:14.5px;color:var(--navy);margin-bottom:8px}
+.tk3-scope .status-card .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tk3-scope .status-card input{flex:1 1 220px;padding:9px 12px;border:1.5px solid var(--field);border-radius:10px;font:inherit}
+#statusResult{margin-top:10px;font-size:13px;padding:9px 12px;border-radius:8px;display:none}
+#statusResult.show{display:block}
+#statusResult.found{background:var(--ok-tint);color:var(--ok-dk)}
+#statusResult.none{background:var(--warn-tint);color:var(--warn-dk)}
+#statusResult.err{background:var(--err-tint);color:var(--err-dk)}
 @keyframes resultPop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 @media (max-width:1000px){.brand-name{display:none}}
 @media (max-width:860px){:root{--bar:66px}.brand{display:none}.tabs{width:100%;gap:12px}button.tab-btn{flex:1;min-width:0;height:52px;padding:0 10px}.tab-sub{display:none}.tab-ico{width:30px;height:30px;border-radius:9px}.tab-ico svg{width:17px;height:17px}.tab-title{font-size:13px}.tk3-scope .tk3-actions{grid-template-columns:1fr}.tk3-scope .toolbar-wrap{position:static}}
@@ -297,6 +306,15 @@ td:first-child{font-weight:600;color:#455a64}
         <li>Quay lại trang này, ở khung xanh lá bên dưới bấm <b>"Chọn tệp"</b> để chọn đúng file PDF vừa ký, sau đó bấm <b>"2. Gửi bản đã ký số cho cơ quan BHXH"</b>.</li>
       </ol>
     </details>
+
+    <div class="status-card">
+      <div class="title">Tra cứu tình trạng nộp tờ khai</div>
+      <div class="controls">
+        <input type="text" id="statusMst" placeholder="Nhập mã số thuế, VD: 0101207360" inputmode="numeric">
+        <button id="statusBtn" type="button" onclick="checkSubmitStatus()">Kiểm tra</button>
+      </div>
+      <div id="statusResult"></div>
+    </div>
 
     <div class="toolbar-wrap">
     <div class="tk3-actions">
@@ -1121,6 +1139,36 @@ function closeResultModal() {
   document.getElementById('resultOverlay').classList.remove('show');
 }
 
+function setStatusResult(type, text) {
+  const box = document.getElementById('statusResult');
+  box.className = 'show ' + type;
+  box.textContent = text;
+}
+
+async function checkSubmitStatus() {
+  const btn = document.getElementById('statusBtn');
+  const mst = document.getElementById('statusMst').value.trim();
+  if (!/^\d{10,13}$/.test(mst.split('-')[0].replace(/\D+/g, ''))) {
+    setStatusResult('err', 'Mã số thuế chưa hợp lệ (10 đến 13 chữ số).');
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Đang kiểm tra...';
+  try {
+    const res = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'checkStatus', mst: mst })
+    }).then(r => r.json());
+    if (res.status === 'found') setStatusResult('found', '✓ ' + res.message);
+    else if (res.status === 'not_found') setStatusResult('none', res.message);
+    else setStatusResult('err', 'Không tra cứu được: ' + (res.message || 'Lỗi không xác định.'));
+  } catch (err) {
+    setStatusResult('err', 'Không kết nối được máy chủ. Vui lòng thử lại.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Kiểm tra';
+  }
+}
+
 function uploadSignedPdf() {
   if (!validateRequiredFields()) {
     showResultModal('warning', 'Thiếu thông tin bắt buộc',
@@ -1198,8 +1246,14 @@ function uploadSignedPdf() {
           const now = new Date().toLocaleString('vi-VN');
           statusEl.style.color = '#0a8a3d';
           statusEl.textContent = '✓ Đã gửi thành công lúc ' + now + '.';
+          btn.disabled = true; btn.textContent = 'Đã gửi thành công';
           showResultModal('success', 'Gửi thành công',
             'Đã gửi thành công file PDF và XML lên hệ thống lúc ' + now + '.\n');
+        } else if (data && data.status === 'duplicate') {
+          btn.disabled = true; btn.textContent = 'Đã gửi trước đó';
+          statusEl.style.color = '#b30000';
+          statusEl.textContent = '✗ Đơn vị đã gửi tờ khai, không gửi trùng.';
+          showResultModal('warning', 'Đã gửi tờ khai trước đó', data.message);
         } else if (data && data.status === 'no_signature') {
           statusEl.style.color = '#b30000';
           statusEl.textContent = '✗ Máy chủ từ chối: chưa có chữ ký số.';
