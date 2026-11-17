@@ -204,7 +204,7 @@ td:first-child{font-weight:600;color:#455a64}
 @media (max-width:520px){.step{grid-template-columns:28px minmax(0,1fr);gap:0 10px}.step-num{width:28px;height:28px;font-size:13px}.step::before{left:13px;top:34px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{
-  .topbar,.page-head,#tabLookup,.tk3-scope .toolbar-wrap,.tk3-scope .guide{display:none!important}
+  .topbar,.page-head,#tabLookup,#tabMaDv,.tk3-scope .toolbar-wrap,.tk3-scope .guide{display:none!important}
   body{background:#fff}
   .app{margin:0;padding:0;max-width:none}
   #tk3Pane{background:#fff;padding:0;border-radius:0;overflow:visible}
@@ -219,6 +219,7 @@ td:first-child{font-weight:600;color:#455a64}
  <nav class="tabs" aria-label="Chức năng">
   <button type="button" id="tabBtnLookup" class="tab-btn active"><span class="tab-ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2M8.5 12.5l1.8-2 1.6 1.4 2.1-2.4"/></svg></span><span class="tab-txt"><span class="tab-title">Tra cứu số liệu đóng BHXH</span><span class="tab-sub">Lấy số liệu theo tháng</span></span></button>
   <button type="button" id="tabBtnTk3" class="tab-btn"><span class="tab-ico"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span><span class="tab-txt"><span class="tab-title">Bổ sung thông tin để đổi mã đơn vị</span><span class="tab-sub">Lập tờ khai, ký số và gửi cơ quan BHXH</span></span></button>
+  <button type="button" id="tabBtnMaDv" class="tab-btn"><span class="tab-ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h4M7 14h6M15 10h2M15 14h2"/></svg></span><span class="tab-txt"><span class="tab-title">Tra cứu mã đơn vị</span><span class="tab-sub">Theo mã số thuế</span></span></button>
  </nav>
 </div></header>
 
@@ -563,6 +564,24 @@ td:first-child{font-weight:600;color:#455a64}
 </div>
 </section>
 
+<section id="tabMaDv" class="tab-pane" hidden>
+<div class="page-head">
+<h1>Tra cứu mã đơn vị</h1>
+<div class="sub">Nhập mã số thuế để xem các mã đơn vị BHXH cùng mã số thuế và tên đơn vị.</div>
+</div>
+<div class="step-body">
+ <div class="form-field">
+  <label for="maDvMst">Mã số thuế</label>
+  <div class="toolbar" style="margin-top:0">
+   <input id="maDvMst" type="text" inputmode="numeric" placeholder="VD: 0101207360" style="flex:1 1 240px;padding:11px 13px;border:1.5px solid var(--field);border-radius:10px;font:inherit">
+   <button id="maDvBtn" type="button">Tra cứu</button>
+  </div>
+ </div>
+ <div class="status" id="maDvStatus">Nhập mã số thuế (10 đến 13 chữ số) rồi bấm "Tra cứu".</div>
+ <div class="box" id="maDvResult" hidden></div>
+</div>
+</section>
+
 <!-- Mẫu ẩn dùng để render ra ảnh rồi nhúng vào PDF (giữ đúng dấu tiếng Việt) -->
 <div id="pdfExportTemplate" style="position:fixed;left:-99999px;top:0;width:794px;background:#fff;padding:50px 56px;font-family:'Times New Roman',Times,serif;color:#000">
  <h2 style="text-align:center;text-transform:uppercase;margin:0 0 4px;font-size:20px">Phiếu đề nghị tra cứu dữ liệu BHXH</h2>
@@ -897,20 +916,23 @@ $('pdfFile').onchange = async e => {
 /* ===== TỜ KHAI TK3-TS ===== */
 /* ===== Chuyển tab: Tra cứu số liệu <-> Tờ khai TK3-TS ===== */
 function switchTab(name) {
-  const isTk3 = (name === 'tk3');
-  document.getElementById('tabLookup').hidden = isTk3;
-  document.getElementById('tabTk3').hidden = !isTk3;
-  document.getElementById('tabBtnLookup').classList.toggle('active', !isTk3);
-  document.getElementById('tabBtnTk3').classList.toggle('active', isTk3);
-  if (isTk3) {
+  const tabs = { lookup: ['tabLookup', 'tabBtnLookup'], tk3: ['tabTk3', 'tabBtnTk3'], madv: ['tabMaDv', 'tabBtnMaDv'] };
+  if (!tabs[name]) name = 'lookup';
+  Object.keys(tabs).forEach(function (k) {
+    document.getElementById(tabs[k][0]).hidden = (k !== name);
+    document.getElementById(tabs[k][1]).classList.toggle('active', k === name);
+  });
+  if (name === 'tk3') {
     // Ô textarea tự giãn cần tính lại chiều cao khi tab vừa được hiện ra
     document.querySelectorAll('textarea.auto-grow').forEach(autoGrowTextarea);
   }
-  try { history.replaceState(null, '', isTk3 ? '#tk3' : location.pathname + location.search); } catch (e) {}
+  try { history.replaceState(null, '', name === 'lookup' ? location.pathname + location.search : '#' + name); } catch (e) {}
 }
 document.getElementById('tabBtnLookup').onclick = function () { switchTab('lookup'); };
 document.getElementById('tabBtnTk3').onclick = function () { switchTab('tk3'); };
+document.getElementById('tabBtnMaDv').onclick = function () { switchTab('madv'); };
 if (location.hash === '#tk3') switchTab('tk3');
+if (location.hash === '#madv') switchTab('madv');
 
 function buildPrintableClone() {
   const page = document.getElementById('page');
@@ -1364,6 +1386,70 @@ function exportPDF() {
     showResultModal('error', 'Lỗi khi xuất PDF', 'Có lỗi xảy ra khi xuất file PDF.\nChi tiết lỗi: ' + err.message);
   });
 }
+
+/* ===== Tab Tra cứu mã đơn vị theo mã số thuế ===== */
+(function initMaDvTab() {
+  const input = document.getElementById('maDvMst');
+  const btn = document.getElementById('maDvBtn');
+  const statusEl = document.getElementById('maDvStatus');
+  const box = document.getElementById('maDvResult');
+
+  function setStatus(color, text) { statusEl.style.color = color; statusEl.textContent = text; }
+
+  function render(items) {
+    box.textContent = '';
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    thead.innerHTML = '<tr><th>STT</th><th>Mã đơn vị</th><th>Tên đơn vị</th></tr>';
+    const tbody = document.createElement('tbody');
+    items.forEach(function (it, i) {
+      const tr = document.createElement('tr');
+      [String(i + 1), it.ma_don_vi, it.ten_don_vi || '(chưa có tên)'].forEach(function (v) {
+        const td = document.createElement('td');
+        td.textContent = v;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    box.appendChild(table);
+    box.hidden = false;
+  }
+
+  async function search() {
+    const mst = input.value.trim();
+    box.hidden = true;
+    if (!/^\d{10,13}$/.test(mst.split('-')[0].replace(/\D+/g, ''))) {
+      setStatus('#b30000', 'Mã số thuế chưa hợp lệ (10 đến 13 chữ số).');
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Đang tra cứu...';
+    setStatus('#455a64', 'Đang tra cứu...');
+    try {
+      const res = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'lookupMaDonVi', mst: mst })
+      }).then(function (r) { return r.json(); });
+      if (res.status === 'found') {
+        setStatus('#0a8a3d', 'Tìm thấy ' + res.items.length + ' đơn vị có mã số thuế ' + mst + ' (dữ liệu tháng ' + res.thang + ').');
+        render(res.items);
+      } else if (res.status === 'not_found') {
+        setStatus('#8f5e18', res.message);
+      } else {
+        setStatus('#b30000', res.message || 'Không tra cứu được.');
+      }
+    } catch (err) {
+      setStatus('#b30000', 'Không kết nối được máy chủ. Vui lòng thử lại.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Tra cứu';
+    }
+  }
+
+  btn.onclick = search;
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') search(); });
+})();
 </script>
 </body>
 </html>
