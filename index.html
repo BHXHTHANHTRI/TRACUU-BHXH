@@ -197,6 +197,10 @@ td:first-child{font-weight:600;color:#455a64}
 #statusResult.found{background:var(--ok-tint);color:var(--ok-dk)}
 #statusResult.none{background:var(--warn-tint);color:var(--warn-dk)}
 #statusResult.err{background:var(--err-tint);color:var(--err-dk)}
+#maDvResult .pay-cell{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#maDvResult .pay-cell code{font-family:Consolas,"Courier New",monospace;font-size:12.5px;background:#f1f5fa;border:1px solid var(--line);border-radius:6px;padding:4px 8px;user-select:all;word-break:break-all}
+#maDvResult .copy-btn{padding:5px 12px;font-size:12.5px;border-radius:8px}
+#maDvResult .copy-btn.copied{background:var(--ok)}
 @keyframes resultPop{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
 @media (max-width:1000px){.brand-name{display:none}}
 @media (max-width:860px){:root{--bar:66px}.brand{display:none}.tabs{width:100%;gap:12px}button.tab-btn{flex:1;min-width:0;height:52px;padding:0 10px}.tab-sub{display:none}.tab-ico{width:30px;height:30px;border-radius:9px}.tab-ico svg{width:17px;height:17px}.tab-title{font-size:13px}.tk3-scope .tk3-actions{grid-template-columns:1fr}.tk3-scope .toolbar-wrap{position:static}}
@@ -1396,11 +1400,35 @@ function exportPDF() {
 
   function setStatus(color, text) { statusEl.style.color = color; statusEl.textContent = text; }
 
+  function copyText(text, btn) {
+    function done(ok) {
+      btn.textContent = ok ? 'Đã sao chép' : 'Lỗi, hãy chọn và sao chép tay';
+      btn.classList.toggle('copied', ok);
+      setTimeout(function () { btn.textContent = 'Sao chép'; btn.classList.remove('copied'); }, 1800);
+    }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallback()); });
+    } else {
+      done(fallback());
+    }
+    function fallback() {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed'; ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      return ok;
+    }
+  }
+
   function render(items) {
     box.textContent = '';
     const table = document.createElement('table');
     const thead = document.createElement('thead');
-    thead.innerHTML = '<tr><th>STT</th><th>Mã đơn vị</th><th>Tên đơn vị</th></tr>';
+    thead.innerHTML = '<tr><th>STT</th><th>Mã đơn vị</th><th>Tên đơn vị</th><th>Nội dung nộp tiền</th></tr>';
     const tbody = document.createElement('tbody');
     items.forEach(function (it, i) {
       const tr = document.createElement('tr');
@@ -1409,6 +1437,20 @@ function exportPDF() {
         td.textContent = v;
         tr.appendChild(td);
       });
+      // Nội dung nộp tiền theo cấu trúc: +BHXH+103+00+Mã đơn vị+00114+dong BHXH+
+      const noiDung = '+BHXH+103+00+' + it.ma_don_vi + '+00114+dong BHXH+';
+      const tdPay = document.createElement('td');
+      tdPay.className = 'pay-cell';
+      const code = document.createElement('code');
+      code.textContent = noiDung;
+      const copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'copy-btn';
+      copyBtn.textContent = 'Sao chép';
+      copyBtn.onclick = function () { copyText(noiDung, copyBtn); };
+      tdPay.appendChild(code);
+      tdPay.appendChild(copyBtn);
+      tr.appendChild(tdPay);
       tbody.appendChild(tr);
     });
     table.appendChild(thead);
